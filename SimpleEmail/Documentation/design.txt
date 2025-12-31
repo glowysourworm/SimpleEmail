@@ -1,0 +1,37 @@
+Simple Email Design
+-------------------
+
+Overview:  This application is designed with the following goals in mind
+
+		   1) To minimize the amount of features for managing large email accounts
+		   2) To manage large amounts of message filters
+		   3) To manage multiple email accounts using POP, or IMAP specifications
+		   4) To manage a local email data store, per account
+		   5) To manage email folders from the account
+		   6) To provide a database for message summary caching, to enhance performance
+		   7) To provide a compressed message (local) store for fast retrieval and small disk footprint
+		   8) Email blacklists*** (additional to filters)
+		   9) Idle email download (performance)
+		   10) Junk / Delete expunge step (get rid of black listed emails immediately, without any added data storage)
+
+Platform Support:
+
+	- Any popular email account (Gmail, Hotmail, etc...). Methods of authentication are creating problems with a single solution.
+	- All single solution accounts (most other email servers) (currently using MailKit)
+
+Components:
+
+	- IEmailManager (Primary client / "server" component. Will handle synchronizing email and other tasks while idle)
+	- IEmailClient
+	- IEmailStore
+	- IEmailDatabase (Database of email summaries, and contact information) (Calendar feature is optional)
+	- IEmailFilter
+	- IEmailAddressBook
+
+Model:
+
+	- Configuration (application level)
+	- EmailConfiguration
+	- Email
+	- EmailFilter
+	- Contact

@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="SimpleEmail.Core/SimpleEmail.Core.csproj" />
+  <Project Path="SimpleEmail/SimpleEmail.csproj" />
+</Solution>
