@@ -9,6 +9,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\Images\email.ico" />
+    <None Remove="Resources\Images\email.jpg" />
+    <None Remove="Resources\Images\icon.ico" />
+    <None Remove="Resources\Images\icon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Google.Apis.Gmail.v1" Version="1.73.0.3987" />
     <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.Office365.OutlookServices-V2.0" Version="2.0.1.2" />
@@ -23,6 +30,13 @@
 
   <ItemGroup>
     <Folder Include="Documentation\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Images\email.ico" />
+    <Resource Include="Resources\Images\email.jpg" />
+    <Resource Include="Resources\Images\icon.ico" />
+    <Resource Include="Resources\Images\icon.png" />
   </ItemGroup>
 
 </Project>

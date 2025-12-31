@@ -11,11 +11,13 @@ namespace SimpleEmail.Core.Component.Interface
     /// </summary>
     public interface IEmailClient
     {
+        void Initialize(EmailClientConfiguration configuration);
+
         /// <summary>
         /// Primary configuration for the email client - specifies POP, or IMAP, and all required 
         /// parameters. This must cover all possible email server situations. (see design.txt)
         /// </summary>
-        internal EmailClientConfiguration Configuration { get; }
+        EmailClientConfiguration Configuration { get; }
 
         Task<IEnumerable<string>> GetFolders();
         Task<IEnumerable<string>> GetSubFolders(string folder);

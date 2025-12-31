@@ -12,19 +12,21 @@ using SimpleEmail.Core.Component.Interface;
 using SimpleEmail.Core.Component.Model;
 
 using SimpleWpf.Extensions.Collection;
+using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace SimpleEmail.Core.Component
 {
+    [IocExport(typeof(IEmailClient))]
     public class GmailClient : IEmailClient
     {
         public EmailClientConfiguration Configuration { get; private set; }
 
-        public GmailClient(string user, string password)
+        public GmailClient()
         {
             this.Configuration = new EmailClientConfiguration();
         }
 
-        public GmailClient(EmailClientConfiguration configuration)
+        public void Initialize(EmailClientConfiguration configuration)
         {
             this.Configuration = configuration;
         }

@@ -1,39 +1,29 @@
 ﻿using System.Windows;
 
-using SimpleEmail.Core.Component;
-using SimpleEmail.Core.Component.Model;
 using SimpleEmail.ViewModel;
 
-using SimpleWpf.Extensions.Collection;
-using SimpleWpf.Extensions.ObservableCollection;
+using SimpleWpf.IocFramework.Application;
+using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace SimpleEmail
 {
+    [IocExportDefault]
     public partial class MainWindow : Window
     {
-        public MainViewModel ViewModel = new MainViewModel();
+        public readonly MainViewModel ViewModel;
 
         public MainWindow()
         {
-            this.ViewModel = new MainViewModel();
+            this.ViewModel = IocContainer.Get<MainViewModel>();
 
             InitializeComponent();
-
-            this.DataContext = this.ViewModel;
-            this.Loaded += MainWindow_Loaded;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            // Default Password
-            this.PasswordTB.Password = this.ViewModel.Configuration.Password;
         }
 
-        private void PasswordTB_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            this.ViewModel.Configuration.Password = this.PasswordTB.Password;
-        }
-
+        /*
         private async void DownloadButton_Click(object sender, RoutedEventArgs e)
         {
             var config = new EmailClientConfiguration()
@@ -62,5 +52,6 @@ namespace SimpleEmail
 
             this.PrimaryTabControl.SelectedIndex = 1;
         }
+        */
     }
 }
