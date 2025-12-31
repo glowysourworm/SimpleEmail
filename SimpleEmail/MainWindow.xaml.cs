@@ -17,6 +17,8 @@ namespace SimpleEmail
             this.ViewModel = IocContainer.Get<MainViewModel>();
 
             InitializeComponent();
+
+            this.DataContext = this.ViewModel;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)

@@ -40,7 +40,8 @@ namespace SimpleEmail.ViewModel
             this.EditAccountSettingsCommand = new SimpleCommand(() =>
             {
                 dialogController.ShowDialogWindowSync(DialogEventData.ShowConfigurationEditor(this.Configuration));
-            });
+
+            }, () => true);
 
             // Edit Theme Settings
             this.EditThemeSettingsCommand = new SimpleCommand(() =>
