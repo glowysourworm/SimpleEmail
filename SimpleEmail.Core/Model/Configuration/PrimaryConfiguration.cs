@@ -1,22 +1,20 @@
-﻿using SimpleEmail.Core.Component.Model;
-
-using SimpleWpf.RecursiveSerializer.Component.Interface;
+﻿using SimpleWpf.RecursiveSerializer.Component.Interface;
 using SimpleWpf.RecursiveSerializer.Interface;
 
-namespace SimpleEmail.Core.Model
+namespace SimpleEmail.Core.Model.Configuration
 {
     public class PrimaryConfiguration : IRecursiveSerializable
     {
-        public List<EmailClientConfiguration> EmailAccounts { get; set; }
+        public List<EmailAccountConfiguration> EmailAccounts { get; set; }
 
         public PrimaryConfiguration()
         {
-            this.EmailAccounts = new List<EmailClientConfiguration>();
+            this.EmailAccounts = new List<EmailAccountConfiguration>();
         }
 
         public PrimaryConfiguration(IPropertyReader reader)
         {
-            this.EmailAccounts = reader.Read<List<EmailClientConfiguration>>("EmailAccounts");
+            this.EmailAccounts = reader.Read<List<EmailAccountConfiguration>>("EmailAccounts");
         }
 
         public void GetProperties(IPropertyWriter writer)

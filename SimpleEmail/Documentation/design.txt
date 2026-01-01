@@ -30,8 +30,45 @@ Components:
 
 Model:
 
-	- Configuration (application level)
-	- EmailConfiguration
+	- PrimaryConfiguration (application level)
+	- EmailAccountConfiguration
+	- EmailAccount
 	- Email
+	- EmailStub			(MailKit's EmailSummary object will be used to supply data)
+	- EmailFolder
 	- EmailFilter
 	- Contact
+
+Model > EmailAccountConfiguration:
+
+	- ServerAddress
+	- ServerPort
+	- User
+	- Password
+	- ClientId			(Used for trusted 3rd party applications, where 2FA was required, gmail is one)
+	- ClientSecret
+
+Model > EmailAccount:
+
+	- (string) EmailAddress
+	- (List) SpecialFolders<EmailFolder>		(Inbox, Junk, Deleted, etc...) (specific to email service)
+	- (List) PersonalFolders<EmailFolder>		(Personally created folders)
+
+Model > EmailFolder:
+
+	- Name
+	- (List) Email<EmailStub>	(Email stubs are supplied by MailKit's EmailSummary; but are smaller to further reduce memory footprint)
+	- (EmailFolder) Parent
+
+Model > Email:
+
+Model > EmailStub:
+
+	- UID			(MailKit's UID)
+	- Subject
+	- From
+	- Timestamp
+
+Model > EmailFilter:
+
+Model > Contact:

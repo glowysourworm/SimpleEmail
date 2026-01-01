@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-using SimpleEmail.ViewModel;
+using SimpleEmail.ViewModel.Configuration;
 
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.ViewModel;

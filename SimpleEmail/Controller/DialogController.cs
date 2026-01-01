@@ -170,7 +170,7 @@
                                 };
                                 break;
                             case DialogEditorView.NewEmailAccount:
-                                _dialogWindow.DataContext = new EmailAccountSettingsView()
+                                _dialogWindow.DataContext = new EmailAccountConfigurationView()
                                 {
                                     DataContext = data.DataContext
                                 };

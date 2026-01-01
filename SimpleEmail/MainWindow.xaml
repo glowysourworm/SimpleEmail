@@ -29,40 +29,53 @@
         </Menu>
 
         <TabControl x:Name="PrimaryTabControl" Grid.Row="1">
-            <TabItem Header="Inbox">
+            
+            <!-- Primary Email Accounts -->
+            <TabItem Header="Email Accounts">
                 <Grid ColumnDefinitions="Auto, *" Background="LightGray">
 
                     <!-- Email Accounts -->
-                    <ListBox x:Name="EmailAccountLB"
-                             MinWidth="300">
+                    <TreeView x:Name="EmailAccountLB"
+                              MinWidth="300">
 
-                    </ListBox>
+                        <TreeViewItem Header="{Binding User.Name}" ItemsSource="{Binding Folders}">
+                            <TreeViewItem.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*, Auto">
+                                        <TextBlock Text="{Binding Name}" />
+                                        <TextBlock Text="{Binding MessageCount}" Grid.Column="1" />
+                                    </Grid>
+                                </DataTemplate>
+                            </TreeViewItem.ItemTemplate>
+                        </TreeViewItem>
+                        
+                    </TreeView>
 
                     <!-- Primary Mail List -->
                     <DataGrid x:Name="MailGrid" 
-                          Grid.Column="1"
-                          ItemsSource="{Binding PrimaryMail}" 
-                          IsReadOnly="True"
-                          AutoGenerateColumns="False"
-                          BorderBrush="Transparent"
-                          BorderThickness="0"
-                          GridLinesVisibility="Horizontal"
-                          HorizontalGridLinesBrush="LightGray"
-                          VerticalGridLinesBrush="Transparent"
-                          RowHeaderWidth="0"
-                          ColumnWidth="*"
-                          CanUserAddRows="False"
-                          CanUserDeleteRows="False"
-                          CanUserReorderColumns="False"
-                          CanUserResizeColumns="True"
-                          CanUserSortColumns="True"
-                          EnableRowVirtualization="True"
-                          EnableColumnVirtualization="False"
-                          SelectionMode="Single"
-                          SelectionUnit="FullRow"                  
-                          VirtualizingPanel.CacheLength="3"
-                          VirtualizingPanel.IsVirtualizing="True"
-                          VirtualizingPanel.VirtualizationMode="Recycling">
+                              Grid.Column="1"
+                              ItemsSource="{Binding PrimaryMail}" 
+                              IsReadOnly="True"
+                              AutoGenerateColumns="False"
+                              BorderBrush="Transparent"
+                              BorderThickness="0"
+                              GridLinesVisibility="Horizontal"
+                              HorizontalGridLinesBrush="LightGray"
+                              VerticalGridLinesBrush="Transparent"
+                              RowHeaderWidth="0"
+                              ColumnWidth="*"
+                              CanUserAddRows="False"
+                              CanUserDeleteRows="False"
+                              CanUserReorderColumns="False"
+                              CanUserResizeColumns="True"
+                              CanUserSortColumns="True"
+                              EnableRowVirtualization="True"
+                              EnableColumnVirtualization="False"
+                              SelectionMode="Single"
+                              SelectionUnit="FullRow"                  
+                              VirtualizingPanel.CacheLength="3"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling">
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding Subject}" Header="Subject" Width="Auto" />
                             <DataGridTextColumn Binding="{Binding From}" Header="From" Width="Auto" />

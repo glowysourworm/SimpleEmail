@@ -1,8 +1,8 @@
 ﻿using SimpleWpf.ViewModel;
 
-namespace SimpleEmail.ViewModel
+namespace SimpleEmail.ViewModel.Email
 {
-    public class EmailViewModel : ViewModelBase
+    public class EmailStubViewModel : ViewModelBase
     {
         string _from;
         string _subject;

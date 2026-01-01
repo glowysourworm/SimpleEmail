@@ -1,21 +1,20 @@
 ﻿using System.Collections.ObjectModel;
 
-using SimpleEmail.Core.Component.Model;
-using SimpleEmail.Core.Model;
+using SimpleEmail.Core.Model.Configuration;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Utilities;
 using SimpleWpf.ViewModel;
 
-namespace SimpleEmail.ViewModel
+namespace SimpleEmail.ViewModel.Configuration
 {
     public class ConfigurationViewModel : ViewModelBase
     {
-        public ObservableCollection<EmailAccountSettingsViewModel> EmailAccountSettings { get; set; }
+        public ObservableCollection<EmailAccountConfigurationViewModel> EmailAccountConfigurations { get; set; }
 
         public ConfigurationViewModel()
         {
-            this.EmailAccountSettings = new ObservableCollection<EmailAccountSettingsViewModel>();
+            this.EmailAccountConfigurations = new ObservableCollection<EmailAccountConfigurationViewModel>();
         }
 
         /// <summary>
@@ -25,11 +24,11 @@ namespace SimpleEmail.ViewModel
         {
             var emailAccounts = configuration.EmailAccounts.Select(account =>
             {
-                return BasicHelpers.Map<EmailClientConfiguration, EmailAccountSettingsViewModel>(account);
+                return BasicHelpers.Map<EmailAccountConfiguration, EmailAccountConfigurationViewModel>(account);
 
             }).Actualize();
 
-            this.EmailAccountSettings = new ObservableCollection<EmailAccountSettingsViewModel>(emailAccounts);
+            this.EmailAccountConfigurations = new ObservableCollection<EmailAccountConfigurationViewModel>(emailAccounts);
         }
 
         /// <summary>
@@ -40,9 +39,9 @@ namespace SimpleEmail.ViewModel
             var configuration = new PrimaryConfiguration();
 
             // Email Accounts
-            configuration.EmailAccounts.AddRange(this.EmailAccountSettings.Select(account =>
+            configuration.EmailAccounts.AddRange(this.EmailAccountConfigurations.Select(account =>
             {
-                return BasicHelpers.Map<EmailAccountSettingsViewModel, EmailClientConfiguration>(account);
+                return BasicHelpers.Map<EmailAccountConfigurationViewModel, EmailAccountConfiguration>(account);
             }));
 
             return configuration;

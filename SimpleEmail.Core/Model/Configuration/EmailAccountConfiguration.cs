@@ -1,26 +1,32 @@
 ﻿using SimpleWpf.RecursiveSerializer.Component.Interface;
 using SimpleWpf.RecursiveSerializer.Interface;
 
-namespace SimpleEmail.Core.Component.Model
+namespace SimpleEmail.Core.Model.Configuration
 {
-    public class EmailClientConfiguration : IRecursiveSerializable
+    public class EmailAccountConfiguration : IRecursiveSerializable
     {
         public string ServerAddress { get; set; }
         public ushort ServerPort { get; set; }
-        public string User { get; set; }
+        public string EmailAddress { get; set; }
         public string Password { get; set; }
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
 
-        public EmailClientConfiguration()
+        public EmailAccountConfiguration()
         {
+            this.ServerAddress = string.Empty;
+            this.ServerPort = 0;
+            this.EmailAddress = string.Empty;
+            this.Password = string.Empty;
+            this.ClientId = string.Empty;
+            this.ClientSecret = string.Empty;
         }
 
-        public EmailClientConfiguration(IPropertyReader reader)
+        public EmailAccountConfiguration(IPropertyReader reader)
         {
             this.ServerAddress = reader.Read<string>("ServerAddress");
             this.ServerPort = reader.Read<ushort>("ServerPort");
-            this.User = reader.Read<string>("User");
+            this.EmailAddress = reader.Read<string>("EmailAddress");
             this.Password = reader.Read<string>("Password");
             this.ClientId = reader.Read<string>("ClientId");
             this.ClientSecret = reader.Read<string>("ClientSecret");
@@ -30,7 +36,7 @@ namespace SimpleEmail.Core.Component.Model
         {
             writer.Write("ServerAddress", this.ServerAddress);
             writer.Write("ServerPort", this.ServerPort);
-            writer.Write("User", this.User);
+            writer.Write("EmailAddress", this.EmailAddress);
             writer.Write("Password", this.Password);
             writer.Write("ClientId", this.ClientId);
             writer.Write("ClientSecret", this.ClientSecret);

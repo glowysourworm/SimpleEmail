@@ -1,4 +1,4 @@
-﻿using SimpleEmail.Core.Model;
+﻿using SimpleEmail.Core.Model.Configuration;
 
 namespace SimpleEmail.Core.Component.Interface
 {

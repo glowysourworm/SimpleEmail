@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <PackageReference Include="Google.Apis.Gmail.v1" Version="1.73.0.3987" />
+    <PackageReference Include="HtmlRenderer.WPF" Version="1.5.2" />
     <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="Microsoft.Office365.OutlookServices-V2.0" Version="2.0.1.2" />
     <PackageReference Include="SimpleWpf" Version="0.0.1" />

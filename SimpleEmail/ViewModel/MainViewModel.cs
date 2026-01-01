@@ -3,6 +3,8 @@
 using SimpleEmail.Controller.Interface;
 using SimpleEmail.Core.Component.Interface;
 using SimpleEmail.Event;
+using SimpleEmail.ViewModel.Configuration;
+using SimpleEmail.ViewModel.Email;
 
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -22,7 +24,7 @@ namespace SimpleEmail.ViewModel
         /// <summary>
         /// Primary email list
         /// </summary>
-        public ObservableCollection<EmailViewModel> PrimaryMail { get; private set; }
+        public ObservableCollection<EmailStubViewModel> CurrentMail { get; private set; }
 
         public SimpleCommand NewAccountCommand { get; private set; }
 
@@ -32,15 +34,16 @@ namespace SimpleEmail.ViewModel
         [IocImportingConstructor]
         public MainViewModel(IConfigurationManager configurationManager,
                              IIocEventAggregator eventAggregator,
-                             IDialogController dialogController)
+                             IDialogController dialogController,
+                             IEmailModelService emailModelService)
         {
-            this.PrimaryMail = new ObservableCollection<EmailViewModel>();
+            this.CurrentMail = new ObservableCollection<EmailStubViewModel>();
             this.Configuration = new ConfigurationViewModel(configurationManager.Get());        // Loads view model from model
 
             // New Account
             this.NewAccountCommand = new SimpleCommand(() =>
             {
-                var viewModel = new EmailAccountSettingsViewModel();
+                var viewModel = new EmailAccountConfigurationViewModel();
 
                 // Show editor
                 var result = dialogController.ShowDialogWindowSync(DialogEventData.ShowNewEmailAccountEditor(viewModel));
@@ -49,7 +52,7 @@ namespace SimpleEmail.ViewModel
                 if (result)
                 {
                     // Add New Account to account list
-                    this.Configuration.EmailAccountSettings.Add(viewModel);
+                    this.Configuration.EmailAccountConfigurations.Add(viewModel);
 
                     // Map view model back to configuration
                     var configuration = this.Configuration.CreateConfiguration();
@@ -88,7 +91,7 @@ namespace SimpleEmail.ViewModel
                     CheckCommandsReady();
                 }
 
-            }, () => this.Configuration.EmailAccountSettings.Count > 0);
+            }, () => this.Configuration.EmailAccountConfigurations.Count > 0);
 
             // Edit Theme Settings
             this.EditThemeSettingsCommand = new SimpleCommand(() =>

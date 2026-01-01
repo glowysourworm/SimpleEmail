@@ -7,10 +7,10 @@
 
         <!-- Email Accounts -->
         <TabItem Header="Email Accounts">
-            <ListBox x:Name="EmailAccountLB" ItemsSource="{Binding EmailAccountSettings}">
+            <ListBox x:Name="EmailAccountLB" ItemsSource="{Binding EmailAccountConfigurations}">
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <local:EmailAccountSettingsView DataContext="{Binding}" />
+                        <local:EmailAccountConfigurationView Width="400" />
                     </DataTemplate>
                 </ListBox.ItemTemplate>
             </ListBox>

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 
 using SimpleEmail.Core.Component.Interface;
-using SimpleEmail.Core.Model;
+using SimpleEmail.Core.Model.Configuration;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.RecursiveSerializer.Shared;

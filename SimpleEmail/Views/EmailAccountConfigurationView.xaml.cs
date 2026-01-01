@@ -1,23 +1,25 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 
-using SimpleEmail.ViewModel;
+using SimpleEmail.ViewModel.Configuration;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace SimpleEmail.Views
 {
     [IocExportDefault]
-    public partial class EmailAccountSettingsView : UserControl
+    public partial class EmailAccountConfigurationView : UserControl
     {
-        public EmailAccountSettingsView()
+        public EmailAccountConfigurationView()
         {
             InitializeComponent();
+
+            this.DataContextChanged += EmailAccountSettingsView_DataContextChanged;
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private void EmailAccountSettingsView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            var viewModel = this.DataContext as EmailAccountSettingsViewModel;
+            var viewModel = this.DataContext as EmailAccountConfigurationViewModel;
 
             // Default Password
             if (viewModel != null)
@@ -26,7 +28,7 @@ namespace SimpleEmail.Views
 
         private void PasswordTB_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            var viewModel = this.DataContext as EmailAccountSettingsViewModel;
+            var viewModel = this.DataContext as EmailAccountConfigurationViewModel;
 
             if (viewModel != null)
                 viewModel.Password = this.PasswordTB.Password;
