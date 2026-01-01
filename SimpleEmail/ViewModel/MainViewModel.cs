@@ -8,6 +8,7 @@ using SimpleEmail.Event;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
+using SimpleWpf.Utilities;
 
 namespace SimpleEmail.ViewModel
 {
@@ -39,7 +40,20 @@ namespace SimpleEmail.ViewModel
             //
             this.EditAccountSettingsCommand = new SimpleCommand(() =>
             {
-                dialogController.ShowDialogWindowSync(DialogEventData.ShowConfigurationEditor(this.Configuration));
+                // Copy view model for editing
+                var configuration = new ConfigurationViewModel();
+
+                // Create copy using AutoMapper
+                BasicHelpers.MapOnto(this.Configuration, configuration);
+
+                // Show editor
+                var result = dialogController.ShowDialogWindowSync(DialogEventData.ShowConfigurationEditor(configuration));
+
+                // Save
+                if (result)
+                {
+                    BasicHelpers.MapOnto(configuration, this.Configuration);
+                }
 
             }, () => true);
 

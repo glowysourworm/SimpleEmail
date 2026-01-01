@@ -12,6 +12,7 @@
     <PackageReference Include="MailKit" Version="4.14.1" />
     <PackageReference Include="SimpleWpf" Version="0.0.1" />
     <PackageReference Include="SimpleWpf.IocFramework" Version="0.0.1" />
+    <PackageReference Include="SimpleWpf.Utilities" Version="0.0.1" />
   </ItemGroup>
 
 </Project>
