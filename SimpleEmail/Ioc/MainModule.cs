@@ -1,4 +1,6 @@
-﻿using SimpleWpf.IocFramework.Application;
+﻿using SimpleEmail.Core.Component.Interface;
+
+using SimpleWpf.IocFramework.Application;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.IocFramework.RegionManagement.Interface;
@@ -8,9 +10,18 @@ namespace SimpleEmail.Ioc
     [IocExportDefault]
     public class MainModule : ModuleBase
     {
+        private readonly IConfigurationManager _configurationManager;
+        private readonly IEmailModelService _emailModelService;
+
         [IocImportingConstructor]
-        public MainModule(IIocRegionManager regionManager, IIocEventAggregator eventAggregator) : base(regionManager, eventAggregator)
+        public MainModule(IIocRegionManager regionManager,
+                          IIocEventAggregator eventAggregator,
+                          IConfigurationManager configurationManager,
+                          IEmailModelService emailModelService)
+            : base(regionManager, eventAggregator)
         {
+            _configurationManager = configurationManager;
+            _emailModelService = emailModelService;
         }
 
         public override void Initialize()
@@ -26,11 +37,17 @@ namespace SimpleEmail.Ioc
             //treeView.SearchPattern = "*.mp3";
         }
 
-        public override void Run()
+        // Entry point to the application (post-bootstrapper)
+        public override async Task RunAsync()
         {
             base.Run();
 
-            //ApplicationHelpers.Log("Welcome to Audio Station!", LogMessageType.General, LogLevel.Information, null);
+            var configuration = _configurationManager.Get();
+
+            // Use this to initialize the service layer
+            await _emailModelService.Initialize(configuration.EmailAccounts);
+
+
         }
     }
 }

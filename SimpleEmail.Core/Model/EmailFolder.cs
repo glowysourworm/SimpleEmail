@@ -22,7 +22,7 @@ namespace SimpleEmail.Core.Model
         }
         public EmailFolder(IMailFolder folder)
         {
-            this.Id = folder.Id;
+            this.Id = folder.FullName;              // Id was null from the client
             this.Name = folder.Name;
             this.ParentFolder = folder.ParentFolder != null ? new EmailFolder(folder.ParentFolder) : null;
             this.MessageCount = folder.Count;

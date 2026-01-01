@@ -18,7 +18,7 @@ namespace SimpleEmail.Ioc
     /// </summary>
     public class SimpleEmailBootstrapper : IocWindowBootstrapper
     {
-        public SimpleEmailBootstrapper()
+        public SimpleEmailBootstrapper() : base(true)
         {
 
         }
