@@ -5,6 +5,7 @@ using SimpleEmail.Core.Model;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.RecursiveSerializer.Shared;
+using SimpleWpf.Utilities;
 
 namespace SimpleEmail.Core.Component
 {
@@ -32,6 +33,11 @@ namespace SimpleEmail.Core.Component
         public PrimaryConfiguration Get()
         {
             return _configuration;
+        }
+
+        public void Set(PrimaryConfiguration configuration)
+        {
+            BasicHelpers.MapOnto(configuration, _configuration);
         }
 
         public void Save()

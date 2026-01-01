@@ -1,8 +1,10 @@
 ﻿using SimpleEmail.Core.Component.Model;
 
+using SimpleWpf.ViewModel;
+
 namespace SimpleEmail.ViewModel
 {
-    public class EmailAccountViewModel
+    public class EmailAccountSettingsViewModel : ViewModelBase
     {
         public string ServerAddress { get; set; }
         public ushort ServerPort { get; set; }
@@ -11,10 +13,16 @@ namespace SimpleEmail.ViewModel
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
 
-        public EmailAccountViewModel()
-        { }
+        public EmailAccountSettingsViewModel()
+        {
+            this.ServerAddress = string.Empty;
+            this.User = string.Empty;
+            this.Password = string.Empty;
+            this.ClientId = string.Empty;
+            this.ClientSecret = string.Empty;
+        }
 
-        public EmailAccountViewModel(EmailClientConfiguration configuration)
+        public EmailAccountSettingsViewModel(EmailClientConfiguration configuration)
         {
             this.ServerAddress = configuration.ServerAddress;
             this.ServerPort = configuration.ServerPort;

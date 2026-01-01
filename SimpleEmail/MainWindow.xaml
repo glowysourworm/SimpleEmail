@@ -12,12 +12,18 @@
         <!-- Header Menu -->
         <Menu>
             <MenuItem Header="_File">
-                <MenuItem Header="_Open" />
+                <MenuItem Header="_New">
+                    <MenuItem Header="_Message" />
+                    <MenuItem Header="_Account" Command="{Binding NewAccountCommand}" />
+                </MenuItem>
+                <MenuItem Header="_Open">
+                    <MenuItem Header="_Draft" />
+                </MenuItem>
             </MenuItem>
             <MenuItem Header="_Edit">
                 <MenuItem Header="_Settings">
-                    <MenuItem Header="_Theme Settings" />
-                    <MenuItem Header="_Account Settings" Command="{Binding EditAccountSettingsCommand}" />
+                    <MenuItem Header="_Theme" />
+                    <MenuItem Header="_Account" Command="{Binding EditAccountSettingsCommand}" />
                 </MenuItem>
             </MenuItem>
         </Menu>
@@ -27,19 +33,10 @@
                 <Grid ColumnDefinitions="Auto, *" Background="LightGray">
 
                     <!-- Email Accounts -->
-                    <TreeView x:Name="EmailAccountLB" 
-                          MinWidth="300"
-                          ItemsSource="{Binding Configuration.EmailAccounts}">
-                        <TreeView.ItemTemplate>
-                            <DataTemplate>
+                    <ListBox x:Name="EmailAccountLB"
+                             MinWidth="300">
 
-                                <TreeViewItem Header="{Binding User}">
-                                    <view:EmailAccountView />
-                                </TreeViewItem>
-
-                            </DataTemplate>
-                        </TreeView.ItemTemplate>
-                    </TreeView>
+                    </ListBox>
 
                     <!-- Primary Mail List -->
                     <DataGrid x:Name="MailGrid" 

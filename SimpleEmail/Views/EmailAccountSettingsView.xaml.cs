@@ -8,28 +8,28 @@ using SimpleWpf.IocFramework.Application.Attribute;
 namespace SimpleEmail.Views
 {
     [IocExportDefault]
-    public partial class EmailAccountView : UserControl
+    public partial class EmailAccountSettingsView : UserControl
     {
-        public EmailAccountViewModel ViewModel { get; private set; }
-
-        public EmailAccountView()
+        public EmailAccountSettingsView()
         {
-            this.ViewModel = new EmailAccountViewModel();
-
             InitializeComponent();
-
-            this.DataContext = this.ViewModel;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            var viewModel = this.DataContext as EmailAccountSettingsViewModel;
+
             // Default Password
-            this.PasswordTB.Password = this.ViewModel.Password;
+            if (viewModel != null)
+                this.PasswordTB.Password = viewModel.Password;
         }
 
         private void PasswordTB_PasswordChanged(object sender, RoutedEventArgs e)
         {
-            this.ViewModel.Password = this.PasswordTB.Password;
+            var viewModel = this.DataContext as EmailAccountSettingsViewModel;
+
+            if (viewModel != null)
+                viewModel.Password = this.PasswordTB.Password;
         }
     }
 }

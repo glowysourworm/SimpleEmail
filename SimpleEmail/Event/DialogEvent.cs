@@ -15,7 +15,8 @@ namespace SimpleEmail.Event
     public enum DialogEditorView
     {
         None,
-        Configuration
+        Configuration,
+        NewEmailAccount
     }
 
     public class DialogEventData
@@ -148,12 +149,28 @@ namespace SimpleEmail.Event
         {
             return new DialogEventData(true,
                                        true,
-                                       "Simple Email Configuration",
+                                       "Configuration",
                                        DialogDefaultWidth,
                                        DialogDefaultHeight,
                                        MessageBoxButton.OKCancel,
                                        DialogView.EditorView,
                                        DialogEditorView.Configuration,
+                                       dataContext);
+        }
+
+        /// <summary>
+        /// Creates a dialog editor with the specified view
+        /// </summary>
+        public static DialogEventData ShowNewEmailAccountEditor(ViewModelBase dataContext)
+        {
+            return new DialogEventData(true,
+                                       true,
+                                       "Email Account Settings",
+                                       DialogDefaultWidth,
+                                       DialogDefaultHeight,
+                                       MessageBoxButton.OKCancel,
+                                       DialogView.EditorView,
+                                       DialogEditorView.NewEmailAccount,
                                        dataContext);
         }
     }

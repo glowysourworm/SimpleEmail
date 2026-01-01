@@ -10,6 +10,7 @@ namespace SimpleEmail.Core.Component.Interface
     {
         void Initialize(string folder);
         PrimaryConfiguration Get();
+        void Set(PrimaryConfiguration configuration);
         void Save();
     }
 }

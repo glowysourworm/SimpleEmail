@@ -1,16 +1,27 @@
 ﻿using SimpleEmail.Core.Component.Model;
 
-using SimpleWpf.SimpleCollections.Collection;
+using SimpleWpf.RecursiveSerializer.Component.Interface;
+using SimpleWpf.RecursiveSerializer.Interface;
 
 namespace SimpleEmail.Core.Model
 {
-    public class PrimaryConfiguration
+    public class PrimaryConfiguration : IRecursiveSerializable
     {
-        public SimpleList<EmailClientConfiguration> EmailAccounts { get; set; }
+        public List<EmailClientConfiguration> EmailAccounts { get; set; }
 
         public PrimaryConfiguration()
         {
-            this.EmailAccounts = new SimpleList<EmailClientConfiguration>();
+            this.EmailAccounts = new List<EmailClientConfiguration>();
+        }
+
+        public PrimaryConfiguration(IPropertyReader reader)
+        {
+            this.EmailAccounts = reader.Read<List<EmailClientConfiguration>>("EmailAccounts");
+        }
+
+        public void GetProperties(IPropertyWriter writer)
+        {
+            writer.Write("EmailAccounts", this.EmailAccounts);
         }
     }
 }

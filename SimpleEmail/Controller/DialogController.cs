@@ -169,6 +169,12 @@
                                     DataContext = data.DataContext
                                 };
                                 break;
+                            case DialogEditorView.NewEmailAccount:
+                                _dialogWindow.DataContext = new EmailAccountSettingsView()
+                                {
+                                    DataContext = data.DataContext
+                                };
+                                break;
                             case DialogEditorView.None:
                             default:
                                 throw new Exception("Unhandled dialog editor view type:  DialogController.cs");
