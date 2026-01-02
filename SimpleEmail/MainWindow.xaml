@@ -80,7 +80,7 @@
 
                                         <TreeView.ItemContainerStyle>
                                             <Style TargetType="TreeViewItem">
-                                                <Setter Property="IsExpanded" Value="True" />
+                                                <Setter Property="Background" Value="Transparent" />
                                                 <Setter Property="Padding" Value="0" />
                                                 <Setter Property="Margin" Value="10, 0, 0, 0" />
                                                 <Setter Property="HorizontalAlignment" Value="Stretch" />
@@ -88,22 +88,59 @@
                                                 <Setter Property="Template">
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="TreeViewItem">
-                                                            <Border x:Name="EmailFolderBorder" 
-                                                                    Background="{TemplateBinding Background}">
-                                                                <Grid ColumnDefinitions="Auto, *" 
-                                                                      RowDefinitions="Auto, *" 
-                                                                      HorizontalAlignment="Stretch">
-                                                                    <TextBlock Text="{Binding Name}" HorizontalAlignment="Left" />
-                                                                    <TextBlock Text="{Binding MessageCount}" Grid.Column="1" HorizontalAlignment="Right" />
 
-                                                                    <ItemsPresenter Grid.ColumnSpan="2" Grid.Row="1" />
-                                                                </Grid>
-                                                            </Border>
+                                                            <Grid RowDefinitions="Auto, *">
+
+                                                                <!-- Item -->
+                                                                <Border x:Name="ItemBorder" Background="{TemplateBinding Background}">
+                                                                    <Grid ColumnDefinitions="20, Auto, *">
+
+                                                                        <ToggleButton x:Name="ExpanderButton" 
+                                                                                      Visibility="{Binding SubFolders, Converter={StaticResource CollectionNonEmptyVisibilityConverter}}"
+                                                                                      IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeViewItem}}"
+                                                                                      BorderBrush="Blue" 
+                                                                                      HorizontalAlignment="Center" 
+                                                                                      VerticalAlignment="Center">
+                                                                            <ToggleButton.Template>
+                                                                                <ControlTemplate TargetType="ToggleButton">
+                                                                                    <Rectangle Width="12" 
+                                                                                               Height="12" 
+                                                                                               Stroke="{TemplateBinding BorderBrush}" 
+                                                                                               Fill="Transparent" />
+                                                                                </ControlTemplate>
+                                                                            </ToggleButton.Template>
+                                                                        </ToggleButton>
+
+                                                                        <TextBlock Text="{Binding Name}" Grid.Column="1" HorizontalAlignment="Left" />
+                                                                        <TextBlock Text="{Binding MessageCount}" Grid.Column="2" HorizontalAlignment="Right" />
+                                                                    </Grid>
+                                                                </Border>
+
+                                                                <!-- Sub-Items -->
+                                                                <ItemsPresenter Grid.Row="1" 
+                                                                                Visibility="{Binding IsExpanded, 
+                                                                                                     Converter={StaticResource BoolInverseVisibilityCollapseConverter}, 
+                                                                                                     RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeViewItem}}" />
+                                                            </Grid>
 
                                                             <ControlTemplate.Triggers>
+                                                                
                                                                 <Trigger Property="IsSelected" Value="True">
-                                                                    <Setter Property="Background" Value="#1F00AAFF" />
+                                                                    <Setter Property="Background" Value="#3F0088FF" />
                                                                 </Trigger>
+
+                                                                <Trigger SourceName="ExpanderButton" Property="IsChecked" Value="True">
+                                                                    <Setter TargetName="ExpanderButton" Property="BorderBrush" Value="Black" />
+                                                                </Trigger>
+
+                                                                <Trigger SourceName="ExpanderButton" Property="IsChecked" Value="False">
+                                                                    <Setter TargetName="ExpanderButton" Property="BorderBrush" Value="Blue" />
+                                                                </Trigger>
+
+                                                                <Trigger SourceName="ItemBorder" Property="IsMouseOver" Value="True">
+                                                                    <Setter Property="Background" Value="#1F0088FF" />
+                                                                </Trigger>
+
                                                             </ControlTemplate.Triggers>
                                                             
                                                         </ControlTemplate>
