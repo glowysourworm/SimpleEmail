@@ -20,6 +20,16 @@ namespace SimpleEmail.Core.Component
     [IocExportSpecific(typeof(IEmailClient), (int)EmailHosts.Gmail, InstancePolicy.ShareGlobal)]
     public class GmailClient : IEmailClient
     {
+        /// <summary>
+        /// Folder data must be specified to be retrieved using the client
+        /// </summary>
+        private readonly StatusItems _folderStatusItems = StatusItems.AppendLimit |
+                                                          StatusItems.Count |
+                                                          StatusItems.Unread;
+
+        // This is effectively the root folder
+        private const string GmailRoot = "[Gmail]";
+
         public GmailClient()
         {
         }
@@ -30,78 +40,58 @@ namespace SimpleEmail.Core.Component
             {
                 using (var client = await CreateIMAP(configuration))
                 {
-                    // Get mail folder from server
-                    var mailFolders = client.GetFolders(new FolderNamespace('/', ""));
+                    var personalFolders = new List<EmailFolder>();
 
-                    // Dispose client (also)
-                    client.Disconnect(true);
-
-                    // Recursively create local folders
-                    var folders = mailFolders.Select(folder =>
+                    // Add folders from all personal namespaces
+                    foreach (var emailNamespace in client.PersonalNamespaces)
                     {
-                        return new EmailFolder(folder);
+                        // Get mail folder from server (SUBFOLDERS ARE INCLUDED HERE)
+                        var mailFolders = client.GetFolders(emailNamespace, _folderStatusItems, true);
+                        var mailFoldersFlattened = new List<IMailFolder>();
 
-                    }).Actualize();
+                        // FLATTEN [Gmail] HIERARCHY
+                        foreach (var folder in mailFolders)
+                        {
+                            if (folder.FullName == GmailRoot)
+                                continue;
 
-                    return new EmailAccount()
-                    {
-                        EmailAddress = EmailAddress.Parse(configuration.EmailAddress),
-                        PersonalFolders = new List<EmailFolder>(folders)
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
+                            // These are Gmail's Default folders; and have to be identified
+                            else if (folder.FullName.Contains(GmailRoot))
+                            {
+                                mailFoldersFlattened.Add(folder);
+                            }
 
-                throw ex;
-            }
-        }
+                            // Other root folders
+                            else if (folder.ParentFolder.FullName == string.Empty)
+                                mailFoldersFlattened.Add(folder);
+                        }
 
-        public async Task<IEnumerable<string>> GetFolders(EmailAccountConfiguration configuration)
-        {
-            try
-            {
-                using (var client = await CreateIMAP(configuration))
-                {
-                    // Get mail folder from server
-                    var mailFolders = client.GetFolders(new FolderNamespace('/', ""));
+                        // Recursively create EmailFolder(s). The API will recall the client during recursion.
+                        //
+                        var folders = mailFoldersFlattened.Select(folder =>
+                        {
+                            // Constructor becomes recursive to load all the subfolders
+                            //
+                            return new EmailFolder(folder);
 
-                    // Dispose client (also)
-                    client.Disconnect(true);
+                        }).Actualize();
 
-                    return mailFolders.Select(x => x.FullName)
-                                      .Actualize();
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-
-                throw ex;
-            }
-        }
-        public async Task<IEnumerable<string>> GetSubFolders(EmailAccountConfiguration configuration, string folder)
-        {
-            try
-            {
-                using (var client = await CreateIMAP(configuration))
-                {
-                    var folders = new List<string>();
-
-                    // Get mail folder from server
-                    var mailFolder = client.GetFolder(folder);
-
-                    // Gets sub-folders of the mail folder (non-recursive)
-                    foreach (var subFolder in mailFolder.GetSubfolders(false))
-                    {
-                        folders.Add(subFolder.FullName);
+                        // Add unique folders to result
+                        foreach (var folder in folders)
+                        {
+                            if (!personalFolders.Any(x => x.Id == folder.Id))
+                                personalFolders.Add(folder);
+                        }
                     }
 
                     // Dispose client (also)
                     client.Disconnect(true);
 
-                    return folders;
+                    return new EmailAccount()
+                    {
+                        EmailAddress = EmailAddress.Parse(configuration.EmailAddress),
+                        PersonalFolders = new List<EmailFolder>(personalFolders)
+                    };
                 }
             }
             catch (Exception ex)

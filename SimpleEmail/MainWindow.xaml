@@ -35,26 +35,96 @@
                 <Grid ColumnDefinitions="Auto, *" Background="LightGray">
 
                     <!-- Email Accounts -->
-                    <TreeView x:Name="EmailAccountLB"
-                              MinWidth="300">
+                    <ListBox x:Name="EmailAccountLB"
+                              MinWidth="300"
+                              Padding="0"
+                              Margin="0"
+                              HorizontalAlignment="Stretch"
+                              HorizontalContentAlignment="Stretch"
+                              ItemsSource="{Binding EmailAccounts}">
 
-                        <TreeViewItem Header="{Binding User.Name}" ItemsSource="{Binding Folders}">
-                            <TreeViewItem.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid ColumnDefinitions="*, Auto">
-                                        <TextBlock Text="{Binding Name}" />
-                                        <TextBlock Text="{Binding MessageCount}" Grid.Column="1" />
-                                    </Grid>
-                                </DataTemplate>
-                            </TreeViewItem.ItemTemplate>
-                        </TreeViewItem>
-                        
-                    </TreeView>
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="{x:Type ListBoxItem}">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="HorizontalContentAlignment" Value="{Binding HorizontalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                                <Setter Property="VerticalContentAlignment" Value="{Binding VerticalContentAlignment, RelativeSource={RelativeSource AncestorType={x:Type ItemsControl}}}"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                            <Border x:Name="Bd" BorderBrush="{TemplateBinding BorderBrush}" 
+                                                    BorderThickness="{TemplateBinding BorderThickness}" 
+                                                    Background="{TemplateBinding Background}" 
+                                                    Padding="{TemplateBinding Padding}" 
+                                                    SnapsToDevicePixels="true">
+                                                <ContentPresenter HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" 
+                                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" 
+                                                                  VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Grid RowDefinitions="Auto, *">
+                                    <TextBlock Text="{Binding EmailAddress}" />
+                                    <TreeView ItemsSource="{Binding EmailFolders}"
+                                              BorderBrush="Transparent"
+                                              Grid.Row="1"
+                                              Margin="0"
+                                              Padding="0"
+                                              HorizontalAlignment="Stretch"
+                                              HorizontalContentAlignment="Stretch">
+
+                                        <TreeView.ItemContainerStyle>
+                                            <Style TargetType="TreeViewItem">
+                                                <Setter Property="IsExpanded" Value="True" />
+                                                <Setter Property="Padding" Value="0" />
+                                                <Setter Property="Margin" Value="10, 0, 0, 0" />
+                                                <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                <Setter Property="Template">
+                                                    <Setter.Value>
+                                                        <ControlTemplate TargetType="TreeViewItem">
+                                                            <Border x:Name="EmailFolderBorder" 
+                                                                    Background="{TemplateBinding Background}">
+                                                                <Grid ColumnDefinitions="Auto, *" 
+                                                                      RowDefinitions="Auto, *" 
+                                                                      HorizontalAlignment="Stretch">
+                                                                    <TextBlock Text="{Binding Name}" HorizontalAlignment="Left" />
+                                                                    <TextBlock Text="{Binding MessageCount}" Grid.Column="1" HorizontalAlignment="Right" />
+
+                                                                    <ItemsPresenter Grid.ColumnSpan="2" Grid.Row="1" />
+                                                                </Grid>
+                                                            </Border>
+
+                                                            <ControlTemplate.Triggers>
+                                                                <Trigger Property="IsSelected" Value="True">
+                                                                    <Setter Property="Background" Value="#1F00AAFF" />
+                                                                </Trigger>
+                                                            </ControlTemplate.Triggers>
+                                                            
+                                                        </ControlTemplate>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </TreeView.ItemContainerStyle>
+
+                                        <TreeView.ItemTemplate>
+                                            <HierarchicalDataTemplate ItemsSource="{Binding SubFolders}" />
+                                        </TreeView.ItemTemplate>
+                                    </TreeView>
+                                </Grid>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
 
                     <!-- Primary Mail List -->
                     <DataGrid x:Name="MailGrid" 
                               Grid.Column="1"
-                              ItemsSource="{Binding PrimaryMail}" 
+                              ItemsSource="{Binding ActiveMailList}" 
                               IsReadOnly="True"
                               AutoGenerateColumns="False"
                               BorderBrush="Transparent"

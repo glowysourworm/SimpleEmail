@@ -18,9 +18,6 @@ namespace SimpleEmail.Core.Component.Interface
         /// </summary>
         Task<EmailAccount> GetAccountDetail(EmailAccountConfiguration configuration);
 
-        Task<IEnumerable<string>> GetFolders(EmailAccountConfiguration configuration);
-        Task<IEnumerable<string>> GetSubFolders(EmailAccountConfiguration configuration, string folder);
-
         // THIS NEEDS TO BE THE COMPLETE MESSAGE GET. CHECK WHAT IS CONTAINED IN MIME MESSAGE!
         Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, MailKit.SpecialFolder folder, IEnumerable<UniqueId> emailIds);
         Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, MailKit.SpecialFolder folder);

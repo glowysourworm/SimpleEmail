@@ -1,33 +1,42 @@
 ﻿using MailKit;
 
+using SimpleWpf.Extensions.Collection;
+
 namespace SimpleEmail.Core.Model
 {
     public class EmailFolder
     {
         public string Id { get; set; }
+        public string? ParentId { get; set; }
         public string Name { get; set; }
         public int MessageCount { get; set; }
         public int MessageUnreadCount { get; set; }
         public MessageFlags AcceptedFlags { get; set; }
-        public EmailFolder? ParentFolder { get; set; }
+        public List<EmailFolder> SubFolders { get; set; }
 
         public EmailFolder()
         {
             this.Id = string.Empty;
+            this.ParentId = null;
             this.Name = string.Empty;
-            this.ParentFolder = null;
             this.MessageCount = 0;
             this.MessageUnreadCount = 0;
             this.AcceptedFlags = MessageFlags.None;
+            this.SubFolders = new List<EmailFolder>();
         }
         public EmailFolder(IMailFolder folder)
         {
-            this.Id = folder.FullName;              // Id was null from the client
+            this.Id = folder.FullName;
             this.Name = folder.Name;
-            this.ParentFolder = folder.ParentFolder != null ? new EmailFolder(folder.ParentFolder) : null;
+            this.ParentId = folder.ParentFolder != null ? folder.ParentFolder.FullName : null;
             this.MessageCount = folder.Count;
             this.MessageUnreadCount = folder.Unread;
             this.AcceptedFlags = MessageFlags.None;
+
+            // Assumes GetSubFolders will work with the open client! API may have a way to preload folder tree!
+            this.SubFolders = new List<EmailFolder>(folder.GetSubfolders(StatusItems.Count | StatusItems.MailboxId | StatusItems.Unread, true)
+                                                          .Select(x => new EmailFolder(x))
+                                                          .Actualize());
         }
 
         public override bool Equals(object? obj)

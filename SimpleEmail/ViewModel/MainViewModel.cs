@@ -7,6 +7,7 @@ using SimpleEmail.ViewModel.Configuration;
 using SimpleEmail.ViewModel.Email;
 
 using SimpleWpf.Extensions.Command;
+using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
 using SimpleWpf.IocFramework.EventAggregation;
 using SimpleWpf.Utilities;
@@ -16,20 +17,40 @@ namespace SimpleEmail.ViewModel
     [IocExportDefault]
     public class MainViewModel
     {
+        private readonly IEmailModelService _emailModelService;
+
         /// <summary>
         /// Configuration object for the application
         /// </summary>
         public ConfigurationViewModel Configuration { get; set; }
 
         /// <summary>
-        /// Primary email list
+        /// Primary list of email accounts
         /// </summary>
-        public ObservableCollection<EmailStubViewModel> CurrentMail { get; private set; }
+        public ObservableCollection<EmailAccountViewModel> EmailAccounts { get; private set; }
 
+        // Selected Account / Email list
+        public EmailAccountViewModel ActiveAccount { get; private set; }
+        public ObservableCollection<EmailStubViewModel> ActiveMailList { get; private set; }
+
+        // Commands
         public SimpleCommand NewAccountCommand { get; private set; }
-
         public SimpleCommand EditAccountSettingsCommand { get; private set; }
         public SimpleCommand EditThemeSettingsCommand { get; private set; }
+
+        // Task Related
+
+        /// <summary>
+        /// This should signal that the application is waiting on a blocking task, which should prevent the user
+        /// from doing anything on the UI.
+        /// </summary>
+        public bool PrimaryTaskRunning { get; private set; }
+
+        /// <summary>
+        /// This signals to the UI that there is a background task running, which may be displayed on the status
+        /// bar, or is also in a task queue.
+        /// </summary>
+        public bool BackgroundTaskRunning { get; private set; }
 
         [IocImportingConstructor]
         public MainViewModel(IConfigurationManager configurationManager,
@@ -37,7 +58,11 @@ namespace SimpleEmail.ViewModel
                              IDialogController dialogController,
                              IEmailModelService emailModelService)
         {
-            this.CurrentMail = new ObservableCollection<EmailStubViewModel>();
+            _emailModelService = emailModelService;
+
+            this.ActiveAccount = null;
+            this.ActiveMailList = new ObservableCollection<EmailStubViewModel>();
+            this.EmailAccounts = new ObservableCollection<EmailAccountViewModel>();
             this.Configuration = new ConfigurationViewModel(configurationManager.Get());        // Loads view model from model
 
             // New Account
@@ -98,6 +123,30 @@ namespace SimpleEmail.ViewModel
             {
                 // TODO
             });
+
+            // Task Related Events
+            eventAggregator.GetEvent<TaskEvent>().Subscribe(data =>
+            {
+                switch (data.Type)
+                {
+                    case TaskType.Initialization:
+                    case TaskType.PrimaryTask:
+                        this.PrimaryTaskRunning = data.Status == TaskEventType.Completed ? false : true;
+                        break;
+                    case TaskType.BackgroundTask:
+                        this.BackgroundTaskRunning = data.Status == TaskEventType.Completed ? false : true;
+                        break;
+                    default:
+                        throw new Exception("Unhandled TaskType:  MainViewModel.cs");
+                }
+
+                // Initialization
+                if (data.Type == TaskType.Initialization &&
+                    data.Status == TaskEventType.Completed)
+                {
+                    RefreshEmailAccounts();
+                }
+            });
         }
 
         /// <summary>
@@ -111,5 +160,30 @@ namespace SimpleEmail.ViewModel
             this.EditThemeSettingsCommand.RaiseCanExecuteChanged();
         }
 
+        private void RefreshEmailAccounts()
+        {
+            // Clear Existing Accounts
+            this.EmailAccounts.Clear();
+
+            // Get accounts from email model service
+            var emailAccounts = _emailModelService.GetAccountList();
+
+            foreach (var account in emailAccounts)
+            {
+                var viewModel = new EmailAccountViewModel();
+
+                viewModel.EmailAddress = account.EmailAddress.ToString();
+                viewModel.EmailFolders.AddRange(account.SpecialFolders.Select(folder =>
+                {
+                    return new EmailFolderViewModel(folder);
+                }));
+                viewModel.EmailFolders.AddRange(account.PersonalFolders.Select(folder =>
+                {
+                    return new EmailFolderViewModel(folder);
+                }));
+
+                this.EmailAccounts.Add(viewModel);
+            }
+        }
     }
 }

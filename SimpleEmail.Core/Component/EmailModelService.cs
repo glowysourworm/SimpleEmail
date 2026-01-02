@@ -4,6 +4,7 @@ using SimpleEmail.Core.Component.Interface;
 using SimpleEmail.Core.Model;
 using SimpleEmail.Core.Model.Configuration;
 
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace SimpleEmail.Core.Component
@@ -63,9 +64,9 @@ namespace SimpleEmail.Core.Component
             return _emailAccounts[emailAddress].Account;
         }
 
-        public IEnumerable<EmailAddress> GetAccountList()
+        public IEnumerable<EmailAccount> GetAccountList()
         {
-            return _emailAccounts.Values.Select(x => x.Account.EmailAddress);
+            return _emailAccounts.Values.Select(x => x.Account).Actualize();
         }
 
         public async Task<Email> GetEmail(string emailAddress, UniqueId emailId)

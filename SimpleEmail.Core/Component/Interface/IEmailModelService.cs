@@ -19,7 +19,7 @@ namespace SimpleEmail.Core.Component.Interface
         /// Returns the email addresses for the current user. These will be the "keys" for each of the
         /// EmailAccount objects held, in memory, by the cache.
         /// </summary>
-        IEnumerable<EmailAddress> GetAccountList();
+        IEnumerable<EmailAccount> GetAccountList();
 
         /// <summary>
         /// Returns an EmailAccount object for the email address.
