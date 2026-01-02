@@ -72,7 +72,7 @@ namespace SimpleEmail.Core.Component
                         {
                             // Constructor becomes recursive to load all the subfolders
                             //
-                            return new EmailFolder(folder);
+                            return new EmailFolder(configuration.EmailAddress, folder);
 
                         }).Actualize();
 

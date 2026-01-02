@@ -6,6 +6,7 @@ namespace SimpleEmail.Core.Model
 {
     public class EmailFolder
     {
+        public string EmailAddress { get; set; }
         public string Id { get; set; }
         public string? ParentId { get; set; }
         public string Name { get; set; }
@@ -16,6 +17,7 @@ namespace SimpleEmail.Core.Model
 
         public EmailFolder()
         {
+            this.EmailAddress = string.Empty;
             this.Id = string.Empty;
             this.ParentId = null;
             this.Name = string.Empty;
@@ -24,8 +26,9 @@ namespace SimpleEmail.Core.Model
             this.AcceptedFlags = MessageFlags.None;
             this.SubFolders = new List<EmailFolder>();
         }
-        public EmailFolder(IMailFolder folder)
+        public EmailFolder(string emailAddress, IMailFolder folder)
         {
+            this.EmailAddress = emailAddress;
             this.Id = folder.FullName;
             this.Name = folder.Name;
             this.ParentId = folder.ParentFolder != null ? folder.ParentFolder.FullName : null;
@@ -35,7 +38,7 @@ namespace SimpleEmail.Core.Model
 
             // Assumes GetSubFolders will work with the open client! API may have a way to preload folder tree!
             this.SubFolders = new List<EmailFolder>(folder.GetSubfolders(StatusItems.Count | StatusItems.MailboxId | StatusItems.Unread, true)
-                                                          .Select(x => new EmailFolder(x))
+                                                          .Select(x => new EmailFolder(emailAddress, x))
                                                           .Actualize());
         }
 

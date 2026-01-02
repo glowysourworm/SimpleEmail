@@ -2,7 +2,6 @@
 
 using SimpleEmail.ViewModel;
 
-using SimpleWpf.IocFramework.Application;
 using SimpleWpf.IocFramework.Application.Attribute;
 
 namespace SimpleEmail
@@ -10,19 +9,55 @@ namespace SimpleEmail
     [IocExportDefault]
     public partial class MainWindow : Window
     {
-        public readonly MainViewModel ViewModel;
+        private readonly MainViewModel _mainViewModel;
 
         public MainWindow()
         {
-            this.ViewModel = IocContainer.Get<MainViewModel>();
+            InitializeComponent();
+        }
+
+        [IocImportingConstructor]
+        public MainWindow(MainViewModel mainViewModel)
+        {
+            _mainViewModel = mainViewModel;
 
             InitializeComponent();
 
-            this.DataContext = this.ViewModel;
+            this.DataContextChanged += MainWindow_DataContextChanged;
+
+            this.DataContext = _mainViewModel;
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        private void MainWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
+            HookEmailCollectionsChanged();
+        }
+
+        private void HookEmailCollectionsChanged()
+        {
+            //_mainViewModel.EmailAccounts.CollectionChanged -= RefreshCollectionBindings;
+            //_mainViewModel.EmailAccounts.CollectionChanged += RefreshCollectionBindings;
+
+            //foreach (var account in _mainViewModel.EmailAccounts)
+            //{
+            //    account.EmailFolders.CollectionChanged -= RefreshCollectionBindings;
+            //    account.EmailFolders.CollectionChanged += RefreshCollectionBindings;
+            //}
+        }
+
+        // Hook IsSelected for TreeViewItem email folder
+        private void RefreshCollectionBindings(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+
+        }
+
+        private void OnEmailFolderSelected(object sender, RoutedEventArgs e)
+        {
+            //var treeViewItem = (TreeViewItem)sender;
+            //var emailFolder = (EmailFolderViewModel)treeViewItem.DataContext;
+
+            //// Set Selected Folder
+            //_mainViewModel.SetSelectedEmailFolder(emailFolder.Id);
         }
 
         /*

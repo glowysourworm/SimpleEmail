@@ -11,15 +11,22 @@ namespace SimpleEmail.ViewModel.Email
 {
     public class EmailFolderViewModel : ViewModelBase
     {
+        string _emailAddress;               // Email Address (ID)
         string _id;
         string _parentId;
         string _name;
+        bool _isSelected;
         int _messageCount;
         int _messageUnreadCount;
         MessageFlags _acceptedFlags;
 
         public ObservableCollection<EmailFolderViewModel> SubFolders { get; private set; }
 
+        public string EmailAddress
+        {
+            get { return _emailAddress; }
+            set { this.RaiseAndSetIfChanged(ref _emailAddress, value); }
+        }
         public string Id
         {
             get { return _id; }
@@ -34,6 +41,11 @@ namespace SimpleEmail.ViewModel.Email
         {
             get { return _name; }
             set { this.RaiseAndSetIfChanged(ref _name, value); }
+        }
+        public bool IsSelected
+        {
+            get { return _isSelected; }
+            set { this.RaiseAndSetIfChanged(ref _isSelected, value); }
         }
         public int MessageCount
         {
@@ -53,9 +65,11 @@ namespace SimpleEmail.ViewModel.Email
 
         public EmailFolderViewModel()
         {
+            this.EmailAddress = string.Empty;
             this.Id = string.Empty;
             this.ParentId = string.Empty;
             this.Name = string.Empty;
+            this.IsSelected = false;
             this.MessageCount = 0;
             this.MessageUnreadCount = 0;
             this.AcceptedFlags = MessageFlags.None;
@@ -64,9 +78,11 @@ namespace SimpleEmail.ViewModel.Email
         }
         public EmailFolderViewModel(EmailFolder folder)
         {
+            this.EmailAddress = folder.EmailAddress;
             this.Id = folder.Id;
             this.ParentId = folder.ParentId ?? string.Empty;
             this.Name = folder.Name;
+            this.IsSelected = false;
             this.MessageCount = folder.MessageCount;
             this.MessageCount = folder.MessageUnreadCount;
             this.AcceptedFlags = folder.AcceptedFlags;

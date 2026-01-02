@@ -30,13 +30,17 @@ namespace SimpleEmail.ViewModel
         public ObservableCollection<EmailAccountViewModel> EmailAccounts { get; private set; }
 
         // Selected Account / Email list
-        public EmailAccountViewModel ActiveAccount { get; private set; }
-        public ObservableCollection<EmailStubViewModel> ActiveMailList { get; private set; }
+        public EmailAccountViewModel SelectedAccount { get; set; }
+        public EmailFolderViewModel SelectedFolder { get; set; }
+        public ObservableCollection<EmailStubViewModel> SelectedFolderEmail { get; private set; }
 
         // Commands
         public SimpleCommand NewAccountCommand { get; private set; }
         public SimpleCommand EditAccountSettingsCommand { get; private set; }
         public SimpleCommand EditThemeSettingsCommand { get; private set; }
+
+        public SimpleCommand<EmailAccountViewModel> SelectAccountCommand { get; private set; }
+        public SimpleCommand<EmailFolderViewModel> SelectFolderCommand { get; private set; }
 
         // Task Related
 
@@ -60,8 +64,8 @@ namespace SimpleEmail.ViewModel
         {
             _emailModelService = emailModelService;
 
-            this.ActiveAccount = null;
-            this.ActiveMailList = new ObservableCollection<EmailStubViewModel>();
+            this.SelectedAccount = null;
+            this.SelectedFolderEmail = new ObservableCollection<EmailStubViewModel>();
             this.EmailAccounts = new ObservableCollection<EmailAccountViewModel>();
             this.Configuration = new ConfigurationViewModel(configurationManager.Get());        // Loads view model from model
 
@@ -124,6 +128,24 @@ namespace SimpleEmail.ViewModel
                 // TODO
             });
 
+            // Active Email Account / Folder 
+            this.SelectAccountCommand = new SimpleCommand<EmailAccountViewModel>(account =>
+            {
+
+            });
+            this.SelectFolderCommand = new SimpleCommand<EmailFolderViewModel>(async folder =>
+            {
+                var account = this.EmailAccounts.FirstOrDefault(x => x.EmailAddress == folder.EmailAddress);
+
+                if (account != null)
+                {
+                    this.SelectedAccount = account;
+                    this.SelectedFolder = folder;
+
+                    folder.IsSelected = true;
+                }
+            });
+
             // Task Related Events
             eventAggregator.GetEvent<TaskEvent>().Subscribe(data =>
             {
@@ -147,6 +169,25 @@ namespace SimpleEmail.ViewModel
                     RefreshEmailAccounts();
                 }
             });
+        }
+
+        /// <summary>
+        /// Selects the folder from the currently selected account. Returns true if selection was successful.
+        /// </summary>
+        public bool SetSelectedEmailFolder(string folderId)
+        {
+            if (this.SelectedAccount == null)
+                return false;
+
+            var folder = this.SelectedAccount.EmailFolders.FirstOrDefault(x => x.Id == folderId);
+
+            if (folder != null)
+            {
+                this.SelectedFolder = folder;
+                return true;
+            }
+
+            return false;
         }
 
         /// <summary>

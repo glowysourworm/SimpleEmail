@@ -7,7 +7,9 @@
     <simpleConverter:BoolVisibilityCollapseConverter x:Key="BoolVisibilityCollapseConverter" />
     <simpleConverter:BoolInverseVisibilityCollapseConverter x:Key="BoolInverseVisibilityCollapseConverter" />
     <simpleConverter:CollectionEmptyVisibilityConverter x:Key="CollectionEmptyVisibilityConverter" />
+    <simpleConverter:CollectionNonEmptyBoolConverter x:Key="CollectionNonEmptyBoolConverter" />
     <simpleConverter:CollectionNonEmptyVisibilityConverter x:Key="CollectionNonEmptyVisibilityConverter" />
+    <simpleConverter:CollectionNonEmptyVisibilityHiddenConverter x:Key="CollectionNonEmptyVisibilityHiddenConverter" />
     <simpleConverter:EnumFilterParameterConverter x:Key="EnumFilterParameterConverter" />
     <simpleConverter:EnumObservableCollectionConverter x:Key="EnumObservableCollectionConverter" />
     <simpleConverter:NonNullVisibilityConverter x:Key="NonNullVisibilityConverter" />

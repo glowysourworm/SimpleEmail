@@ -36,12 +36,10 @@
 
                     <!-- Email Accounts -->
                     <ListBox x:Name="EmailAccountLB"
-                              MinWidth="300"
-                              Padding="0"
-                              Margin="0"
-                              HorizontalAlignment="Stretch"
-                              HorizontalContentAlignment="Stretch"
-                              ItemsSource="{Binding EmailAccounts}">
+                             MinWidth="300"
+                             HorizontalAlignment="Stretch"
+                             HorizontalContentAlignment="Stretch"
+                             ItemsSource="{Binding EmailAccounts}">
 
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="{x:Type ListBoxItem}">
@@ -82,47 +80,60 @@
                                             <Style TargetType="TreeViewItem">
                                                 <Setter Property="Background" Value="Transparent" />
                                                 <Setter Property="Padding" Value="0" />
-                                                <Setter Property="Margin" Value="10, 0, 0, 0" />
+                                                <Setter Property="Margin" Value="0,0,0,0" />
                                                 <Setter Property="HorizontalAlignment" Value="Stretch" />
                                                 <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}" />
+
                                                 <Setter Property="Template">
                                                     <Setter.Value>
                                                         <ControlTemplate TargetType="TreeViewItem">
 
-                                                            <Grid RowDefinitions="Auto, *">
+                                                            <Grid RowDefinitions="Auto, *" Margin="0,0,0,0">
 
                                                                 <!-- Item -->
-                                                                <Border x:Name="ItemBorder" Background="{TemplateBinding Background}">
+                                                                <Border x:Name="ItemBorder" 
+                                                                        Background="{TemplateBinding Background}">
                                                                     <Grid ColumnDefinitions="20, Auto, *">
 
                                                                         <ToggleButton x:Name="ExpanderButton" 
-                                                                                      Visibility="{Binding SubFolders, Converter={StaticResource CollectionNonEmptyVisibilityConverter}}"
-                                                                                      IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeViewItem}}"
+                                                                                      Visibility="{Binding SubFolders, Converter={StaticResource CollectionNonEmptyVisibilityHiddenConverter}}"
+                                                                                      IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeViewItem}, Mode=TwoWay}"
+                                                                                      IsEnabled="{Binding SubFolders, Converter={StaticResource CollectionNonEmptyBoolConverter}}"
                                                                                       BorderBrush="Blue" 
                                                                                       HorizontalAlignment="Center" 
                                                                                       VerticalAlignment="Center">
                                                                             <ToggleButton.Template>
                                                                                 <ControlTemplate TargetType="ToggleButton">
-                                                                                    <Rectangle Width="12" 
-                                                                                               Height="12" 
+                                                                                    <Rectangle Width="10" 
+                                                                                               Height="10" 
                                                                                                Stroke="{TemplateBinding BorderBrush}" 
                                                                                                Fill="Transparent" />
                                                                                 </ControlTemplate>
                                                                             </ToggleButton.Template>
                                                                         </ToggleButton>
 
-                                                                        <TextBlock Text="{Binding Name}" Grid.Column="1" HorizontalAlignment="Left" />
-                                                                        <TextBlock Text="{Binding MessageCount}" Grid.Column="2" HorizontalAlignment="Right" />
+                                                                        <Grid ColumnDefinitions="Auto, *" Grid.ColumnSpan="2" Grid.Column="1" Background="Transparent">
+                                                                            <!--Grid.InputBindings>
+                                                                                <MouseBinding MouseAction="LeftClick" 
+                                                                                              Command="{Binding DataContext.SelectFolderCommand, 
+                                                                                                                RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=ListBox}}" 
+                                                                                              CommandParameter="{Binding DataContext, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeViewItem}}" />
+                                                                            </Grid.InputBindings-->
+                                                                            <TextBlock Text="{Binding Name}" Grid.Column="0" HorizontalAlignment="Left" />
+                                                                            <TextBlock Text="{Binding MessageCount}" Grid.Column="1" HorizontalAlignment="Right" />
+                                                                        </Grid>
                                                                     </Grid>
                                                                 </Border>
 
                                                                 <!-- Sub-Items -->
                                                                 <ItemsPresenter Grid.Row="1" 
+                                                                                Margin="20,0,0,0"
                                                                                 Visibility="{Binding IsExpanded, 
-                                                                                                     Converter={StaticResource BoolInverseVisibilityCollapseConverter}, 
-                                                                                                     RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeViewItem}}" />
+                                                                                                     RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=TreeViewItem},
+                                                                                                     Converter={StaticResource BoolVisibilityCollapseConverter}}" />
                                                             </Grid>
-
+                                                            
                                                             <ControlTemplate.Triggers>
                                                                 
                                                                 <Trigger Property="IsSelected" Value="True">
@@ -161,7 +172,7 @@
                     <!-- Primary Mail List -->
                     <DataGrid x:Name="MailGrid" 
                               Grid.Column="1"
-                              ItemsSource="{Binding ActiveMailList}" 
+                              ItemsSource="{Binding SelectedFolderEmail}" 
                               IsReadOnly="True"
                               AutoGenerateColumns="False"
                               BorderBrush="Transparent"
