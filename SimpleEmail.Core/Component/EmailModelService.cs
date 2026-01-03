@@ -13,6 +13,7 @@ namespace SimpleEmail.Core.Component
     public class EmailModelService : IEmailModelService
     {
         private readonly IEmailClient _gmailClient;
+        private readonly IEmailClient _gmailApiClient;
         private readonly IEmailClient _hotmailClient;
 
         // (Secondary) Account Configuration Store. If a user adds an account, the Initialize method must be re-called.
@@ -24,12 +25,14 @@ namespace SimpleEmail.Core.Component
 
         [IocImportingConstructor]
         public EmailModelService([IocImport(typeof(IEmailClient), (int)EmailHosts.Gmail)] IEmailClient gmailClient,
+                                 [IocImport(typeof(IEmailClient), (int)EmailHosts.GmailApi)] IEmailClient gmailApiClient,
                                  [IocImport(typeof(IEmailClient), (int)EmailHosts.Hotmail)] IEmailClient hotmailClient)
         {
             _emailAccounts = new Dictionary<string, EmailAccountCache>();
             _emailConfigurations = new Dictionary<string, EmailAccountConfiguration>();
 
             _gmailClient = gmailClient;
+            _gmailApiClient = gmailApiClient;
             _hotmailClient = hotmailClient;
         }
 
@@ -149,6 +152,8 @@ namespace SimpleEmail.Core.Component
                     return _hotmailClient;
                 case EmailHosts.Gmail:
                     return _gmailClient;
+                case EmailHosts.GmailApi:
+                    return _gmailApiClient;
                 default:
                     throw new Exception("Unhandled email host type: EmailModelService.cs");
             }

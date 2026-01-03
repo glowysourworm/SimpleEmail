@@ -3,6 +3,7 @@
     public enum EmailHosts : int
     {
         Gmail = 0,
-        Hotmail = 1
+        GmailApi = 1,
+        Hotmail = 2
     }
 }

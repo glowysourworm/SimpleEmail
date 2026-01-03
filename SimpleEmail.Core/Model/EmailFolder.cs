@@ -1,6 +1,9 @@
-﻿using MailKit;
+﻿using Google.Apis.Gmail.v1.Data;
+
+using MailKit;
 
 using SimpleWpf.Extensions.Collection;
+using SimpleWpf.Utilities;
 
 namespace SimpleEmail.Core.Model
 {
@@ -41,6 +44,30 @@ namespace SimpleEmail.Core.Model
                                                           .Select(x => new EmailFolder(emailAddress, x))
                                                           .Actualize());
         }
+        public EmailFolder(string emailAddress, Label label, IEnumerable<Label> allLabels)
+        {
+            this.EmailAddress = emailAddress;
+            this.Id = label.Id;
+            this.Name = label.Name;
+            this.ParentId = null;
+            this.MessageCount = label.MessagesTotal ?? 0;
+            this.MessageUnreadCount = label.MessagesUnread ?? 0;
+
+
+
+            this.SubFolders = allLabels.Where(x =>
+            {
+                var matchCount = 0;
+
+                // [Label]/[SubLabel]/[next level sub-label] (excluded)
+                var success = StringHelpers.RegexMatchIC(label.Name + "/([a-zA-Z0-9_]+)", x.Name, out matchCount);
+
+                return success && matchCount == 1;
+            })
+            .Select(x => new EmailFolder(emailAddress, x, allLabels))
+            .ToList();
+        }
+
 
         public override bool Equals(object? obj)
         {
@@ -58,6 +85,11 @@ namespace SimpleEmail.Core.Model
         public override int GetHashCode()
         {
             return this.Id.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return string.Format("Id={0} Name={1}", this.Id, this.Name);
         }
     }
 }

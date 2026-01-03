@@ -37,7 +37,7 @@
         {
             switch (supportedHost)
             {
-                case EmailHosts.Gmail:
+                case EmailHosts.GmailApi:
                     return GMAIL_HOST_NAME;
                 case EmailHosts.Hotmail:
                     return HOTMAIL_HOST_NAME;
@@ -51,7 +51,7 @@
             switch (hostName)
             {
                 case GMAIL_HOST_NAME:
-                    return EmailHosts.Gmail;
+                    return EmailHosts.GmailApi;
                 case HOTMAIL_HOST_NAME:
                     return EmailHosts.Hotmail;
                 default:
