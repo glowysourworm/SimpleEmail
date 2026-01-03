@@ -6,6 +6,7 @@ using SimpleEmail.Event;
 using SimpleEmail.ViewModel.Configuration;
 using SimpleEmail.ViewModel.Email;
 
+using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Extensions.Command;
 using SimpleWpf.Extensions.ObservableCollection;
 using SimpleWpf.IocFramework.Application.Attribute;
@@ -30,8 +31,6 @@ namespace SimpleEmail.ViewModel
         public ObservableCollection<EmailAccountViewModel> EmailAccounts { get; private set; }
 
         // Selected Account / Email list
-        public EmailAccountViewModel SelectedAccount { get; set; }
-        public EmailFolderViewModel SelectedFolder { get; set; }
         public ObservableCollection<EmailStubViewModel> SelectedFolderEmail { get; private set; }
 
         // Commands
@@ -39,7 +38,6 @@ namespace SimpleEmail.ViewModel
         public SimpleCommand EditAccountSettingsCommand { get; private set; }
         public SimpleCommand EditThemeSettingsCommand { get; private set; }
 
-        public SimpleCommand<EmailAccountViewModel> SelectAccountCommand { get; private set; }
         public SimpleCommand<EmailFolderViewModel> SelectFolderCommand { get; private set; }
 
         // Task Related
@@ -64,10 +62,11 @@ namespace SimpleEmail.ViewModel
         {
             _emailModelService = emailModelService;
 
-            this.SelectedAccount = null;
             this.SelectedFolderEmail = new ObservableCollection<EmailStubViewModel>();
             this.EmailAccounts = new ObservableCollection<EmailAccountViewModel>();
             this.Configuration = new ConfigurationViewModel(configurationManager.Get());        // Loads view model from model
+
+            this.EmailAccounts.CollectionChanged += OnEmailAccountsChanged;
 
             // New Account
             this.NewAccountCommand = new SimpleCommand(() =>
@@ -128,24 +127,6 @@ namespace SimpleEmail.ViewModel
                 // TODO
             });
 
-            // Active Email Account / Folder 
-            this.SelectAccountCommand = new SimpleCommand<EmailAccountViewModel>(account =>
-            {
-
-            });
-            this.SelectFolderCommand = new SimpleCommand<EmailFolderViewModel>(async folder =>
-            {
-                var account = this.EmailAccounts.FirstOrDefault(x => x.EmailAddress == folder.EmailAddress);
-
-                if (account != null)
-                {
-                    this.SelectedAccount = account;
-                    this.SelectedFolder = folder;
-
-                    folder.IsSelected = true;
-                }
-            });
-
             // Task Related Events
             eventAggregator.GetEvent<TaskEvent>().Subscribe(data =>
             {
@@ -169,25 +150,6 @@ namespace SimpleEmail.ViewModel
                     RefreshEmailAccounts();
                 }
             });
-        }
-
-        /// <summary>
-        /// Selects the folder from the currently selected account. Returns true if selection was successful.
-        /// </summary>
-        public bool SetSelectedEmailFolder(string folderId)
-        {
-            if (this.SelectedAccount == null)
-                return false;
-
-            var folder = this.SelectedAccount.EmailFolders.FirstOrDefault(x => x.Id == folderId);
-
-            if (folder != null)
-            {
-                this.SelectedFolder = folder;
-                return true;
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -224,6 +186,70 @@ namespace SimpleEmail.ViewModel
                 }));
 
                 this.EmailAccounts.Add(viewModel);
+            }
+        }
+
+        private void OnEmailAccountsChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            RefreshEmailAccountHooks();
+            RefreshEmailFolderHooks();
+        }
+
+        private void OnEmailFoldersChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            RefreshEmailFolderHooks();
+        }
+
+        private void RefreshEmailAccountHooks()
+        {
+            foreach (var emailAccount in this.EmailAccounts)
+            {
+                emailAccount.EmailFolders.CollectionChanged -= OnEmailFoldersChanged;
+                emailAccount.EmailFolders.CollectionChanged += OnEmailFoldersChanged;
+            }
+        }
+
+        private void RefreshEmailFolderHooks()
+        {
+            foreach (var emailAccount in this.EmailAccounts)
+            {
+                foreach (var emailFolder in emailAccount.EmailFolders)
+                {
+                    RefreshEmailFolderHooksRecurse(emailFolder);
+                }
+            }
+        }
+
+        private void RefreshEmailFolderHooksRecurse(EmailFolderViewModel folder)
+        {
+            folder.PropertyChanged -= EmailFolder_PropertyChanged;
+            folder.PropertyChanged += EmailFolder_PropertyChanged;
+
+            foreach (var emailFolder in folder.SubFolders)
+            {
+                RefreshEmailFolderHooksRecurse(emailFolder);
+            }
+        }
+
+        private async void EmailFolder_PropertyChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            var emailFolder = sender as EmailFolderViewModel;
+
+            // Load Email List
+            //
+            if (emailFolder != null &&
+                emailFolder.IsSelected &&
+                e.PropertyName == "IsSelected")
+            {
+                // Email Service Call
+                //
+                var emailStubs = await _emailModelService.GetEmailStubs(emailFolder.EmailAddress, emailFolder.Id);
+
+                if (emailStubs != null)
+                {
+                    this.SelectedFolderEmail.Clear();
+                    this.SelectedFolderEmail.AddRange(emailStubs.Select(x => new EmailStubViewModel(x)).Actualize());
+                }
             }
         }
     }

@@ -108,20 +108,26 @@ namespace SimpleEmail.Core.Component
 
             // Download
             //
-            // TODO: Should check if email stubs are up to date
-            if (cache.GetFolder(emailFolderId).MessageCount == 0)
+            // Check to see if all stubs have been downloaded. TODO: Find out how email checksums are
+            // done to validate that number (in case there have been emails deleted and added)
+            //
+            if (cache.GetFolder(emailFolderId).MessageCount != cache.GetEmailStubCount(emailFolderId))
             {
                 var configuration = _emailConfigurations[emailAddress];
-                var summaries = await _gmailClient.GetSummariesAsync(configuration, SpecialFolder.All);
+                var summaries = await _gmailClient.GetSummariesAsync(configuration, emailFolderId);
 
                 if (summaries == null || !summaries.Any())
                     throw new Exception("Email request failed for " + emailAddress);
 
-                var emailStubs = summaries.Select(x => new EmailStub(x));
+                var emailStubs = summaries.Select(x => new EmailStub(x, emailFolderId)).Actualize();
 
                 // Add to cache
                 foreach (var stub in emailStubs)
-                    cache.AddEmailStub(stub);
+                {
+                    // DOUBLE CHECK (SERVICE NEEDS TO BE PROOFED)
+                    if (!cache.ContainsEmailStub(stub.Uid))
+                        cache.AddEmailStub(stub);
+                }
 
                 return emailStubs;
             }

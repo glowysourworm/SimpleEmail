@@ -21,10 +21,10 @@ namespace SimpleEmail.Core.Model
             this.ThreadId = string.Empty;
         }
 
-        public EmailStub(IMessageSummary summary)
+        public EmailStub(IMessageSummary summary, string folderId)
         {
             this.Uid = summary.UniqueId;
-            this.FolderId = summary.Folder.Id;
+            this.FolderId = folderId;
             this.Subject = summary.NormalizedSubject;
             this.From = summary.Envelope.From.FirstOrDefault()?.Name ?? string.Empty;
             this.Date = summary.Date.UtcDateTime;

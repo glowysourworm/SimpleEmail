@@ -27,6 +27,11 @@ namespace SimpleEmail.Core.Component
                                                           StatusItems.Count |
                                                           StatusItems.Unread;
 
+        private readonly MessageSummaryItems _messageSummaryItems = MessageSummaryItems.Envelope |
+                                                                    MessageSummaryItems.Flags |
+                                                                    MessageSummaryItems.UniqueId |
+                                                                    MessageSummaryItems.ThreadId;
+
         // This is effectively the root folder
         private const string GmailRoot = "[Gmail]";
 
@@ -115,7 +120,7 @@ namespace SimpleEmail.Core.Component
                     folder.Open(FolderAccess.ReadOnly);
 
                     // Retrieve message summaries
-                    var messages = folder.Fetch(new List<UniqueId>(emailIds), MessageSummaryItems.All);
+                    var messages = folder.Fetch(new List<UniqueId>(emailIds), _messageSummaryItems);
 
                     // Dispose client (also)
                     client.Disconnect(true);
@@ -144,7 +149,7 @@ namespace SimpleEmail.Core.Component
                     folder.Open(FolderAccess.ReadOnly);
 
                     // Retrieve message summaries
-                    var messages = folder.Fetch(0, folder.Count - 1, MessageSummaryItems.All);
+                    var messages = folder.Fetch(0, folder.Count - 1, _messageSummaryItems);
 
                     // Dispose client (also)
                     client.Disconnect(true);
@@ -172,7 +177,7 @@ namespace SimpleEmail.Core.Component
                     folder.Open(FolderAccess.ReadOnly);
 
                     // Retrieve message summaries
-                    var messages = folder.Fetch(0, folder.Count - 1, MessageSummaryItems.All);
+                    var messages = folder.Fetch(0, folder.Count - 1, _messageSummaryItems);
 
                     // Dispose client (also)
                     client.Disconnect(true);

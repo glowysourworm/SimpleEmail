@@ -197,7 +197,7 @@
                         <DataGrid.Columns>
                             <DataGridTextColumn Binding="{Binding Subject}" Header="Subject" Width="Auto" />
                             <DataGridTextColumn Binding="{Binding From}" Header="From" Width="Auto" />
-                            <DataGridTextColumn Binding="{Binding Timestamp}" Header="Date" Width="*" />
+                            <DataGridTextColumn Binding="{Binding Date}" Header="Date" Width="*" />
                         </DataGrid.Columns>
                     </DataGrid>
                 </Grid>

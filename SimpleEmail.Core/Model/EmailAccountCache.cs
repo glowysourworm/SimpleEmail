@@ -1,6 +1,8 @@
 ﻿
 using MailKit;
 
+using SimpleWpf.Extensions.Collection;
+
 namespace SimpleEmail.Core.Model
 {
     /// <summary>
@@ -96,43 +98,57 @@ namespace SimpleEmail.Core.Model
         {
             return _folders[folderId];
         }
-
         public Email GetEmail(UniqueId emailId)
         {
             return _email[emailId];
         }
-
         public Email GetEmail(string folderId, UniqueId emailId)
         {
             return _emailByFolder[folderId][emailId];
         }
-
         public EmailStub GetEmailStub(UniqueId emailId)
         {
             return _emailStubs[emailId];
         }
-
         public EmailStub GetEmailStub(string folderId, UniqueId emailId)
         {
             return _emailStubsByFolder[folderId][emailId];
         }
-
         public IEnumerable<EmailStub> GetEmailStubs(string folderId)
         {
             return _emailStubs.Where(x => x.Value.FolderId == folderId)
-                              .Select(x => x.Value);
+                              .Select(x => x.Value)
+                              .Actualize();
         }
 
-        public void AddFolder(EmailFolder folder)
+        public int GetEmailCount(string folderId)
         {
-            if (_folders.ContainsKey(folder.Id))
+            return _emailByFolder[folderId].Count;
+        }
+        public int GetEmailStubCount(string folderId)
+        {
+            return _emailStubsByFolder[folderId].Count;
+        }
+
+        /// <summary>
+        /// Adds folder, and all subfolders, to the cache. Any folder may later be referenced by 
+        /// the EmailFolder.Id property.
+        /// </summary>
+        public void AddFolder(EmailFolder emailFolder)
+        {
+            if (_folders.ContainsKey(emailFolder.Id))
                 throw new Exception("Email folder already present in EmailAccountCache");
 
-            _folders.Add(folder.Id, folder);
-            _emailByFolder.Add(folder.Id, new Dictionary<UniqueId, Email>());
-            _emailStubsByFolder.Add(folder.Id, new Dictionary<UniqueId, EmailStub>());
-        }
+            var folders = FlattenSubFolders(emailFolder);
 
+            // TODO: NOTIFY WHERE WE ALREADY HAVE FOLDER ADDED
+            foreach (var folder in folders)
+            {
+                _folders.Add(folder.Id, folder);
+                _emailByFolder.Add(folder.Id, new Dictionary<UniqueId, Email>());
+                _emailStubsByFolder.Add(folder.Id, new Dictionary<UniqueId, EmailStub>());
+            }
+        }
         public void AddEmailStub(EmailStub stub)
         {
             if (_emailStubs.ContainsKey(stub.Uid))
@@ -144,7 +160,6 @@ namespace SimpleEmail.Core.Model
             _emailStubs.Add(stub.Uid, stub);
             _emailStubsByFolder[stub.FolderId].Add(stub.Uid, stub);
         }
-
         public void AddEmail(Email email)
         {
             if (_email.ContainsKey(email.Uid))
@@ -170,12 +185,10 @@ namespace SimpleEmail.Core.Model
         {
             return _folders.ContainsKey(folderId);
         }
-
         public bool ContainsEmail(UniqueId emailId)
         {
             return _email.ContainsKey(emailId);
         }
-
         public bool ContainsEmailStub(UniqueId emailId)
         {
             return _emailStubs.ContainsKey(emailId);
@@ -199,7 +212,6 @@ namespace SimpleEmail.Core.Model
             _emailByFolder.Remove(folderId);
             _emailStubsByFolder.Remove(folderId);
         }
-
         public void RemoveEmailStub(string folderId, UniqueId emailStubId)
         {
             if (!_folders.ContainsKey(folderId))
@@ -247,5 +259,27 @@ namespace SimpleEmail.Core.Model
             _emailStubs.Remove(emailId);
             _emailStubsByFolder[folderId].Remove(emailId);
         }
+
+        private IEnumerable<EmailFolder> FlattenSubFolders(EmailFolder folder)
+        {
+            var result = new List<EmailFolder>();
+
+            FlattenSubFoldersRecurse(folder, result);
+
+            return result;
+        }
+
+        private void FlattenSubFoldersRecurse(EmailFolder folder, List<EmailFolder> result)
+        {
+            // Add
+            result.Add(folder);
+
+            foreach (var subFolder in folder.SubFolders)
+            {
+                // -> Add
+                FlattenSubFoldersRecurse(subFolder, result);
+            }
+        }
+
     }
 }

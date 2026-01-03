@@ -1,14 +1,23 @@
-﻿using SimpleWpf.ViewModel;
+﻿using MailKit;
+
+using SimpleEmail.Core.Model;
+
+using SimpleWpf.ViewModel;
 
 namespace SimpleEmail.ViewModel.Email
 {
     public class EmailStubViewModel : ViewModelBase
     {
+        UniqueId _uid;
         string _from;
         string _subject;
-        string _body;
-        DateTime _timestamp;
+        DateTime _date;
 
+        public UniqueId Uid
+        {
+            get { return _uid; }
+            set { this.RaiseAndSetIfChanged(ref _uid, value); }
+        }
         public string From
         {
             get { return _from; }
@@ -19,15 +28,25 @@ namespace SimpleEmail.ViewModel.Email
             get { return _subject; }
             set { this.RaiseAndSetIfChanged(ref _subject, value); }
         }
-        public string Body
+        public DateTime Date
         {
-            get { return _body; }
-            set { this.RaiseAndSetIfChanged(ref _body, value); }
+            get { return _date; }
+            set { this.RaiseAndSetIfChanged(ref _date, value); }
         }
-        public DateTime Timestamp
+
+        public EmailStubViewModel()
         {
-            get { return _timestamp; }
-            set { this.RaiseAndSetIfChanged(ref _timestamp, value); }
+            this.Uid = new UniqueId();
+            this.From = string.Empty;
+            this.Subject = string.Empty;
+            this.Date = DateTime.MinValue;
+        }
+        public EmailStubViewModel(EmailStub stub)
+        {
+            this.Uid = stub.Uid;
+            this.From = stub.From;
+            this.Subject = stub.Subject;
+            this.Date = stub.Date;
         }
     }
 }
