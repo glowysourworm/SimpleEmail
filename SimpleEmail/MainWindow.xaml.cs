@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 
+using CefSharp;
+
 using SimpleEmail.Core.Component.Interface;
 using SimpleEmail.ViewModel;
 using SimpleEmail.ViewModel.Email;
@@ -43,12 +45,9 @@ namespace SimpleEmail
                 var emailView = new EmailView();
                 var window = new Window();
 
-                emailView.VerticalAlignment = VerticalAlignment.Top;
-
                 window.Content = emailView;
-                window.VerticalContentAlignment = VerticalAlignment.Top;
-
-                emailView.Browser.NavigateToString(email.HtmlBody);
+                emailView.Browser.LoadHtml(email.HtmlBody);
+                emailView.Browser.BrowserSettings.Javascript = CefState.Disabled;
 
                 window.Show();
             }

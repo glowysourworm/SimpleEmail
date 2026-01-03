@@ -1,4 +1,12 @@
 <Solution>
-  <Project Path="SimpleEmail.Core/SimpleEmail.Core.csproj" />
-  <Project Path="SimpleEmail/SimpleEmail.csproj" />
+  <Configurations>
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+  </Configurations>
+  <Project Path="SimpleEmail.Core/SimpleEmail.Core.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
+  <Project Path="SimpleEmail/SimpleEmail.csproj">
+    <Platform Solution="*|x64" Project="x64" />
+  </Project>
 </Solution>
