@@ -24,11 +24,13 @@
         {
             this.User = "newaccount";
             this.HostAddress = GetHostName(EmailHosts.Hotmail);
+            this.EmailHost = EmailHosts.Hotmail;
         }
         public EmailAddress(string userName, EmailHosts supportedHost)
         {
             this.User = userName;
             this.HostAddress = GetHostName(supportedHost);
+            this.EmailHost = supportedHost;
         }
 
         public static string GetHostName(EmailHosts supportedHost)
@@ -55,6 +57,13 @@
                 default:
                     throw new Exception("Host support not implemented!");
             }
+        }
+
+        public static EmailHosts GetHostFromAddress(string emailAddress)
+        {
+            var address = Parse(emailAddress);
+
+            return address.EmailHost;
         }
 
         public static bool IsHost(string hostName)

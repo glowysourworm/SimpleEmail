@@ -19,15 +19,15 @@ namespace SimpleEmail.Core.Component.Interface
         Task<EmailAccount> GetAccountDetail(EmailAccountConfiguration configuration);
 
         // THIS NEEDS TO BE THE COMPLETE MESSAGE GET. CHECK WHAT IS CONTAINED IN MIME MESSAGE!
-        Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, MailKit.SpecialFolder folder, IEnumerable<UniqueId> emailIds);
-        Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, MailKit.SpecialFolder folder);
-        Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folder);
+        Task<IMessageSummary> GetSummaryAsync(EmailAccountConfiguration configuration, string folderId, UniqueId emailIds);
+        Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId, IEnumerable<UniqueId> emailIds);
+        Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId);
 
         /// <summary>
         /// Primary function to retrieve a message from the email server. Use this after acquiring
         /// the message's UID. Trying to get them all at once is not (currently) supported by the
         /// MailKit API; and may not be the best strategy for large email accounts.
         /// </summary>
-        Task<IMimeMessage> GetMessage(EmailAccountConfiguration configuration, UniqueId uid);
+        Task<IMimeMessage> GetMessage(EmailAccountConfiguration configuration, string folderId, UniqueId emailUid);
     }
 }

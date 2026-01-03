@@ -34,6 +34,6 @@ namespace SimpleEmail.Core.Component.Interface
         /// <summary>
         /// Returns Email object for the provided email unique id.
         /// </summary>
-        Task<Email> GetEmail(string emailAddress, UniqueId emailId);
+        Task<Email> GetEmail(string emailAddress, string folderId, UniqueId emailId);
     }
 }

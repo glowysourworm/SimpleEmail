@@ -107,14 +107,27 @@ namespace SimpleEmail.Core.Component
             }
         }
 
-        public async Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, MailKit.SpecialFolder specialFolder, IEnumerable<UniqueId> emailIds)
+        public async Task<IMessageSummary> GetSummaryAsync(EmailAccountConfiguration configuration, string folderId, UniqueId emailId)
+        {
+            try
+            {
+                return (await GetSummariesAsync(configuration, folderId, new UniqueId[] { emailId })).FirstOrDefault();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+
+                throw ex;
+            }
+        }
+        public async Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId, IEnumerable<UniqueId> emailIds)
         {
             try
             {
                 using (var client = await CreateIMAP(configuration))
                 {
                     // Open folder using IMAP client
-                    var folder = client.GetFolder(specialFolder);
+                    var folder = client.GetFolder(folderId);
 
                     // Read Only
                     folder.Open(FolderAccess.ReadOnly);
@@ -135,43 +148,14 @@ namespace SimpleEmail.Core.Component
                 throw ex;
             }
         }
-
-        public async Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, MailKit.SpecialFolder specialFolder)
+        public async Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId)
         {
             try
             {
                 using (var client = await CreateIMAP(configuration))
                 {
                     // Open folder using IMAP client
-                    var folder = client.GetFolder(specialFolder);
-
-                    // Read Only
-                    folder.Open(FolderAccess.ReadOnly);
-
-                    // Retrieve message summaries
-                    var messages = folder.Fetch(0, folder.Count - 1, _messageSummaryItems);
-
-                    // Dispose client (also)
-                    client.Disconnect(true);
-
-                    return messages;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-
-                throw ex;
-            }
-        }
-        public async Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderPath)
-        {
-            try
-            {
-                using (var client = await CreateIMAP(configuration))
-                {
-                    // Open folder using IMAP client
-                    var folder = client.GetFolder(folderPath);
+                    var folder = client.GetFolder(folderId);
 
                     // Read Only
                     folder.Open(FolderAccess.ReadOnly);
@@ -193,22 +177,34 @@ namespace SimpleEmail.Core.Component
             }
         }
 
-        public async Task<IMimeMessage> GetMessage(EmailAccountConfiguration configuration, UniqueId uid)
+        public async Task<IMimeMessage> GetMessage(EmailAccountConfiguration configuration, string folderId, UniqueId emailUid)
         {
             try
             {
-                using (var client = await CreateIMAP(configuration))
+                try
                 {
-                    // Retrieve the essage directly using the UID
-                    var folder = client.Inbox.Open(FolderAccess.ReadOnly);
+                    using (var client = await CreateIMAP(configuration))
+                    {
+                        // Open folder using IMAP client
+                        var folder = client.GetFolder(folderId);
 
-                    // Retrieve message 
-                    var message = await client.Inbox.GetMessageAsync(uid);
+                        // Read Only
+                        folder.Open(FolderAccess.ReadOnly);
 
-                    // Dispose client (also)
-                    client.Disconnect(true);
+                        // Retrieve message summaries
+                        var message = folder.GetMessage(emailUid);
 
-                    return message;
+                        // Dispose client (also)
+                        client.Disconnect(true);
+
+                        return message;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+
+                    throw ex;
                 }
             }
             catch (Exception ex)

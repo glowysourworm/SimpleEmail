@@ -45,7 +45,7 @@ namespace SimpleEmail.Core.Component
                 _emailConfigurations.Add(configuration.EmailAddress, configuration);
 
                 // Get email account details
-                var emailAccount = await _gmailClient.GetAccountDetail(configuration);
+                var emailAccount = await GetClient(EmailAddress.GetHostFromAddress(configuration.EmailAddress)).GetAccountDetail(configuration);
 
                 // Create new cache object (which adds folder detail)
                 var cache = new EmailAccountCache(emailAccount);
@@ -69,7 +69,7 @@ namespace SimpleEmail.Core.Component
             return _emailAccounts.Values.Select(x => x.Account).Actualize();
         }
 
-        public async Task<Email> GetEmail(string emailAddress, UniqueId emailId)
+        public async Task<Email> GetEmail(string emailAddress, string folderId, UniqueId emailId)
         {
             if (!_emailAccounts.ContainsKey(emailAddress))
                 throw new Exception("Email address not found in local store");
@@ -80,17 +80,22 @@ namespace SimpleEmail.Core.Component
             if (!cache.ContainsEmail(emailId))
             {
                 var configuration = _emailConfigurations[emailAddress];
-                var mimeMessages = await _gmailClient.GetSummariesAsync(configuration, SpecialFolder.All, new UniqueId[] { emailId });
 
-                if (mimeMessages == null || !mimeMessages.Any())
+                var message = await GetClient(cache.Account.EmailAddress.EmailHost).
+                                    GetMessage(configuration, folderId, emailId);
+
+                var stub = await GetClient(cache.Account.EmailAddress.EmailHost).
+                                 GetSummaryAsync(configuration, folderId, emailId);
+
+                if (message == null)
                     throw new Exception("Email request failed for Email " + emailId.ToString());
 
-                var email = new Email(mimeMessages.First());
+                var result = new Email(message, stub, emailAddress);
 
                 // Add to cache
-                cache.AddEmail(email);
+                cache.AddEmail(result);
 
-                return email;
+                return result;
             }
             else
                 return cache.GetEmail(emailId);
@@ -114,12 +119,13 @@ namespace SimpleEmail.Core.Component
             if (cache.GetFolder(emailFolderId).MessageCount != cache.GetEmailStubCount(emailFolderId))
             {
                 var configuration = _emailConfigurations[emailAddress];
-                var summaries = await _gmailClient.GetSummariesAsync(configuration, emailFolderId);
+                var summaries = await GetClient(cache.Account.EmailAddress.EmailHost).
+                                      GetSummariesAsync(configuration, emailFolderId);
 
                 if (summaries == null || !summaries.Any())
                     throw new Exception("Email request failed for " + emailAddress);
 
-                var emailStubs = summaries.Select(x => new EmailStub(x, emailFolderId)).Actualize();
+                var emailStubs = summaries.Select(x => new EmailStub(x, emailFolderId, cache.Account.EmailAddress)).Actualize();
 
                 // Add to cache
                 foreach (var stub in emailStubs)
@@ -133,6 +139,19 @@ namespace SimpleEmail.Core.Component
             }
             else
                 return cache.GetEmailStubs(emailFolderId);
+        }
+
+        private IEmailClient GetClient(EmailHosts emailHost)
+        {
+            switch (emailHost)
+            {
+                case EmailHosts.Hotmail:
+                    return _hotmailClient;
+                case EmailHosts.Gmail:
+                    return _gmailClient;
+                default:
+                    throw new Exception("Unhandled email host type: EmailModelService.cs");
+            }
         }
     }
 }

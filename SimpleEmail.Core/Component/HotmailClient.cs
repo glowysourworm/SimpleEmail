@@ -1,7 +1,4 @@
-﻿
-
-
-using MailKit;
+﻿using MailKit;
 
 using MimeKit;
 
@@ -16,41 +13,27 @@ namespace SimpleEmail.Core.Component
     [IocExportSpecific(typeof(IEmailClient), (int)EmailHosts.Hotmail, InstancePolicy.ShareGlobal)]
     public class HotmailClient : IEmailClient
     {
-        public HotmailClient()
-        {
-        }
-
         public Task<EmailAccount> GetAccountDetail(EmailAccountConfiguration configuration)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<string>> GetFolders(EmailAccountConfiguration configuration)
+        public Task<IMimeMessage> GetMessage(EmailAccountConfiguration configuration, string folderId, UniqueId emailUid)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IMimeMessage> GetMessage(EmailAccountConfiguration configuration, UniqueId uid)
+        public Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId, IEnumerable<UniqueId> emailIds)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<string>> GetSubFolders(EmailAccountConfiguration configuration, string folder)
+        public Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, SpecialFolder folder, IEnumerable<UniqueId> emailIds)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, SpecialFolder folder)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folder)
+        public Task<IMessageSummary> GetSummaryAsync(EmailAccountConfiguration configuration, string folderId, UniqueId emailIds)
         {
             throw new NotImplementedException();
         }

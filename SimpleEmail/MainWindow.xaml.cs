@@ -1,6 +1,9 @@
 ﻿using System.Windows;
 
+using SimpleEmail.Core.Component.Interface;
 using SimpleEmail.ViewModel;
+using SimpleEmail.ViewModel.Email;
+using SimpleEmail.Views;
 
 using SimpleWpf.IocFramework.Application.Attribute;
 
@@ -9,6 +12,7 @@ namespace SimpleEmail
     [IocExportDefault]
     public partial class MainWindow : Window
     {
+        private readonly IEmailModelService _emailModelService;
         private readonly MainViewModel _mainViewModel;
 
         public MainWindow()
@@ -17,78 +21,37 @@ namespace SimpleEmail
         }
 
         [IocImportingConstructor]
-        public MainWindow(MainViewModel mainViewModel)
+        public MainWindow(IEmailModelService emailModelService, MainViewModel mainViewModel)
         {
+            _emailModelService = emailModelService;
             _mainViewModel = mainViewModel;
 
             InitializeComponent();
 
-            this.DataContextChanged += MainWindow_DataContextChanged;
-
             this.DataContext = _mainViewModel;
         }
 
-        private void MainWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        private async void MailGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            HookEmailCollectionsChanged();
-        }
+            var viewModel = (e.OriginalSource as FrameworkElement).DataContext as EmailStubViewModel;
 
-        private void HookEmailCollectionsChanged()
-        {
-            //_mainViewModel.EmailAccounts.CollectionChanged -= RefreshCollectionBindings;
-            //_mainViewModel.EmailAccounts.CollectionChanged += RefreshCollectionBindings;
-
-            //foreach (var account in _mainViewModel.EmailAccounts)
-            //{
-            //    account.EmailFolders.CollectionChanged -= RefreshCollectionBindings;
-            //    account.EmailFolders.CollectionChanged += RefreshCollectionBindings;
-            //}
-        }
-
-        // Hook IsSelected for TreeViewItem email folder
-        private void RefreshCollectionBindings(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-
-        }
-
-        private void OnEmailFolderSelected(object sender, RoutedEventArgs e)
-        {
-            //var treeViewItem = (TreeViewItem)sender;
-            //var emailFolder = (EmailFolderViewModel)treeViewItem.DataContext;
-
-            //// Set Selected Folder
-            //_mainViewModel.SetSelectedEmailFolder(emailFolder.Id);
-        }
-
-        /*
-        private async void DownloadButton_Click(object sender, RoutedEventArgs e)
-        {
-            var config = new EmailClientConfiguration()
+            if (viewModel != null)
             {
-                ServerAddress = this.ViewModel.Configuration.ServerAddress,
-                ServerPort = this.ViewModel.Configuration.ServerPort,
-                Password = this.ViewModel.Configuration.Password,
-                User = this.ViewModel.Configuration.User,
-                ClientId = this.ViewModel.Configuration.ClientId,
-                ClientSecret = this.ViewModel.Configuration.ClientSecret,
-            };
-            var client = new GmailClient(config);
+                var email = await _emailModelService.GetEmail(viewModel.EmailAddress, viewModel.FolderId, viewModel.Uid);
 
-            var messageSummaries = await client.GetSummariesAsync("INBOX");
+                // View Email
+                var emailView = new EmailView();
+                var window = new Window();
 
-            this.ViewModel.PrimaryMail.Clear();
-            this.ViewModel.PrimaryMail.AddRange(messageSummaries.Select(x => new EmailViewModel()
-            {
-                Subject = x.NormalizedSubject,
-                From = x.Envelope
-                        .Sender
-                        .Select(x => x.Name)
-                        .Join("; ", x => x),
-                Timestamp = x.Date.ToUniversalTime().DateTime
-            }));
+                emailView.VerticalAlignment = VerticalAlignment.Top;
 
-            this.PrimaryTabControl.SelectedIndex = 1;
+                window.Content = emailView;
+                window.VerticalContentAlignment = VerticalAlignment.Top;
+
+                emailView.Browser.NavigateToString(email.HtmlBody);
+
+                window.Show();
+            }
         }
-        */
     }
 }

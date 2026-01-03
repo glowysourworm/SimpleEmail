@@ -1,13 +1,13 @@
 ﻿using MailKit;
 
-using SimpleWpf.Extensions.Collection;
+using MimeKit;
 
 namespace SimpleEmail.Core.Model
 {
     public class Email
     {
         public UniqueId Uid { get; set; }               // MailKit's UniqueId
-        public string EmailId { get; set; }             // This must relate to MailKit.UniqueId
+        public EmailAddress EmailAddress { get; set; }
         public string FolderId { get; set; }
         public string ThreadId { get; set; }
         public MessageFlags Flags { get; set; }
@@ -19,7 +19,6 @@ namespace SimpleEmail.Core.Model
         public Email()
         {
             this.Uid = new UniqueId();
-            this.EmailId = string.Empty;
             this.FolderId = string.Empty;
             this.ThreadId = string.Empty;
             this.Flags = MessageFlags.None;
@@ -32,19 +31,22 @@ namespace SimpleEmail.Core.Model
         /// <summary>
         /// Constructor to build our email object from MailKit
         /// </summary>
-        public Email(IMessageSummary message)
+        public Email(IMimeMessage message, IMessageSummary summary, string emailAddress)
         {
-            this.Uid = message.UniqueId;
-            this.EmailId = message.EmailId;
-            this.FolderId = message.Folder.Id;
-            this.ThreadId = message.ThreadId;
-            this.Flags = message.Flags ?? MessageFlags.None;
-            this.Envelope = new EmailEnvelope(message.Envelope, message.InternalDate, message.Keywords);
+            this.Uid = summary.UniqueId;
+            this.EmailAddress = EmailAddress.Parse(emailAddress);
+            this.FolderId = summary.Folder.FullName;
+            this.ThreadId = summary.ThreadId;
+            this.Flags = MessageFlags.None;
+            this.Envelope = new EmailEnvelope(summary.Envelope, summary.InternalDate, summary.Keywords);
 
             // TODO: VIEW HTML!
+            //this.HtmlBody = message.Body?.ToString() ?? string.Empty;
+            this.HtmlBody = message.HtmlBody;
 
-            this.SaveDate = message.SaveDate?.UtcDateTime ?? DateTime.MinValue;         // This should be the date that the email is saved on the server side
-            this.ReferenceIds = message.References.Select(x => x).ToList();
+            this.SaveDate = summary.SaveDate?.UtcDateTime ?? DateTime.MinValue;         // This should be the date that the email is saved on the server side
+            //this.ReferenceIds = message.References.Select(x => x).ToList();
+            this.ReferenceIds = new List<string>();
         }
 
         public EmailStub CreateStub()
@@ -54,6 +56,7 @@ namespace SimpleEmail.Core.Model
 
             return new EmailStub()
             {
+                EmailAddress = this.EmailAddress,
                 Uid = this.Uid,
                 Date = this.Envelope.Date,
                 FolderId = this.FolderId,
