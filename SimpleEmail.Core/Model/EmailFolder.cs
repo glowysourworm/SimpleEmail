@@ -1,9 +1,10 @@
-﻿using Google.Apis.Gmail.v1.Data;
-
-using MailKit;
+﻿using MailKit;
 
 using SimpleWpf.Extensions.Collection;
 using SimpleWpf.Utilities;
+
+using GmailFolder = Google.Apis.Gmail.v1.Data.Label;
+using HotmailFolder = Microsoft.Graph.Models.MailFolder;
 
 namespace SimpleEmail.Core.Model
 {
@@ -44,36 +45,52 @@ namespace SimpleEmail.Core.Model
                                                           .Select(x => new EmailFolder(emailAddress, x))
                                                           .Actualize());
         }
-        public EmailFolder(string emailAddress, Label label, IEnumerable<Label> allLabels)
+        public EmailFolder(string emailAddress, GmailFolder folder, IEnumerable<GmailFolder> allFolders)
         {
             this.EmailAddress = emailAddress;
-            this.Id = label.Id;
-            this.Name = label.Name;
+            this.Id = folder.Id;
+            this.Name = folder.Name;
             this.ParentId = null;
-            this.MessageCount = label.MessagesTotal ?? 0;
-            this.MessageUnreadCount = label.MessagesUnread ?? 0;
+            this.MessageCount = folder.MessagesTotal ?? 0;
+            this.MessageUnreadCount = folder.MessagesUnread ?? 0;
 
-
-
-            this.SubFolders = allLabels.Where(x =>
+            this.SubFolders = allFolders.Where(x =>
             {
                 var matchCount = 0;
 
                 // [Label]/[SubLabel]/[next level sub-label] (excluded)
-                var success = StringHelpers.RegexMatchIC(label.Name + "/([a-zA-Z0-9_]+)", x.Name, out matchCount);
+                var success = StringHelpers.RegexMatchIC(folder.Name + "/([a-zA-Z0-9_]+)", x.Name, out matchCount);
 
                 return success && matchCount == 1;
             })
             .Select(x =>
             {
-                var subFolder = new EmailFolder(emailAddress, x, allLabels);
+                var subFolder = new EmailFolder(emailAddress, x, allFolders);
 
                 // Remove parent folder name from the subfolder
-                subFolder.Name = subFolder.Name.Replace(label.Name + "/", "");
+                subFolder.Name = subFolder.Name.Replace(folder.Name + "/", "");
 
                 return subFolder;
             })
             .ToList();
+        }
+
+        public EmailFolder(HotmailFolder folder, IEnumerable<HotmailFolder> subFolders, string emailAddress)
+        {
+            if (string.IsNullOrWhiteSpace(folder.Id))
+                throw new ArgumentException("EmailFolder.Id must not be null");
+
+            if (string.IsNullOrWhiteSpace(folder.DisplayName))
+                throw new ArgumentException("EmailFolder.DisplayName must not be null");
+
+            this.EmailAddress = emailAddress;
+            this.Id = folder.Id;
+            this.Name = folder.DisplayName;
+            this.ParentId = null;
+            this.MessageCount = folder.TotalItemCount ?? 0;
+            this.MessageUnreadCount = folder.UnreadItemCount ?? 0;
+
+            this.SubFolders = subFolders.Select(subFolder => new EmailFolder(subFolder, new HotmailFolder[] { }, emailAddress)).ToList();
         }
 
 

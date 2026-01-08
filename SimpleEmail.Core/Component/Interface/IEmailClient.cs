@@ -24,6 +24,6 @@ namespace SimpleEmail.Core.Component.Interface
         /// the message's UID. Trying to get them all at once is not (currently) supported by the
         /// MailKit API; and may not be the best strategy for large email accounts.
         /// </summary>
-        Task<Email> GetMessage(EmailAccountConfiguration configuration, string folderId, string emailUid);
+        Task<Email> GetMessage(EmailAccountConfiguration configuration, string folderId, string emailId);
     }
 }
