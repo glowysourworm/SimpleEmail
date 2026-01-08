@@ -1,15 +1,13 @@
-﻿using MailKit;
-
-using SimpleEmail.Core.Model;
+﻿using SimpleEmail.Core.Model;
 
 using SimpleWpf.ViewModel;
 
 namespace SimpleEmail.ViewModel.Email
 {
-    public class EmailStubViewModel : ViewModelBase
+    public class EmailSummaryViewModel : ViewModelBase
     {
         string _emailAddress;       // Account ID
-        UniqueId _uid;
+        string _id;
         string _folderId;
         string _from;
         string _subject;
@@ -20,10 +18,10 @@ namespace SimpleEmail.ViewModel.Email
             get { return _emailAddress; }
             set { this.RaiseAndSetIfChanged(ref _emailAddress, value); }
         }
-        public UniqueId Uid
+        public string Id
         {
-            get { return _uid; }
-            set { this.RaiseAndSetIfChanged(ref _uid, value); }
+            get { return _id; }
+            set { this.RaiseAndSetIfChanged(ref _id, value); }
         }
         public string FolderId
         {
@@ -46,23 +44,23 @@ namespace SimpleEmail.ViewModel.Email
             set { this.RaiseAndSetIfChanged(ref _date, value); }
         }
 
-        public EmailStubViewModel()
+        public EmailSummaryViewModel()
         {
             this.EmailAddress = string.Empty;
-            this.Uid = new UniqueId();
+            this.Id = string.Empty;
             this.FolderId = string.Empty;
             this.From = string.Empty;
             this.Subject = string.Empty;
             this.Date = DateTime.MinValue;
         }
-        public EmailStubViewModel(EmailStub stub)
+        public EmailSummaryViewModel(EmailSummary summary)
         {
-            this.EmailAddress = stub.EmailAddress.ToString();
-            this.Uid = stub.Uid;
-            this.FolderId = stub.FolderId;
-            this.From = stub.From;
-            this.Subject = stub.Subject;
-            this.Date = stub.Date;
+            this.EmailAddress = summary.EmailAddress.ToString();
+            this.Id = summary.Id.ToString();
+            this.FolderId = summary.FolderId;
+            this.From = summary.From;
+            this.Subject = summary.Subject;
+            this.Date = summary.Date;
         }
     }
 }

@@ -6,7 +6,7 @@ namespace SimpleEmail.Core.Model
 {
     public class Email
     {
-        public UniqueId Uid { get; set; }               // MailKit's UniqueId
+        public string Id { get; set; }               // MailKit's UniqueId
         public EmailAddress EmailAddress { get; set; }
         public string FolderId { get; set; }
         public string ThreadId { get; set; }
@@ -18,7 +18,8 @@ namespace SimpleEmail.Core.Model
 
         public Email()
         {
-            this.Uid = new UniqueId();
+            this.Id = string.Empty;
+            this.EmailAddress = new EmailAddress();
             this.FolderId = string.Empty;
             this.ThreadId = string.Empty;
             this.Flags = MessageFlags.None;
@@ -28,12 +29,25 @@ namespace SimpleEmail.Core.Model
             this.ReferenceIds = new List<string>();
         }
 
+        public Email(EmailSummary summary, EmailAddress emailAddress, DateTime internalDate, IEnumerable<string> keywords)
+        {
+            this.Id = summary.Id;
+            this.EmailAddress = emailAddress;
+            this.FolderId = summary.FolderId;
+            this.ThreadId = summary.ThreadId;
+            this.Flags = MessageFlags.None;
+            this.Envelope = new EmailEnvelope(summary, internalDate, keywords);
+            this.HtmlBody = summary.Body ?? string.Empty;
+            this.SaveDate = DateTime.MinValue;
+            this.ReferenceIds = new List<string>();
+        }
+
         /// <summary>
         /// Constructor to build our email object from MailKit
         /// </summary>
         public Email(IMimeMessage message, IMessageSummary summary, string emailAddress)
         {
-            this.Uid = summary.UniqueId;
+            this.Id = summary.UniqueId.ToString();
             this.EmailAddress = EmailAddress.Parse(emailAddress);
             this.FolderId = summary.Folder.FullName;
             this.ThreadId = summary.ThreadId;
@@ -49,15 +63,29 @@ namespace SimpleEmail.Core.Model
             this.ReferenceIds = new List<string>();
         }
 
-        public EmailStub CreateStub()
+        public Email(IMimeMessage message, string folderId, string threadId, UniqueId emailUid, string emailAddress)
         {
-            if (this.Uid == new UniqueId())
+            this.Id = emailUid.ToString();
+            this.EmailAddress = EmailAddress.Parse(emailAddress);
+            this.FolderId = folderId;
+            this.ThreadId = threadId;
+            this.Flags = MessageFlags.None;
+            this.Envelope = new EmailEnvelope(message);
+
+            this.HtmlBody = message.HtmlBody;
+            this.SaveDate = DateTime.MinValue;
+            this.ReferenceIds = message.References.ToList();
+        }
+
+        public EmailSummary CreateStub()
+        {
+            if (string.IsNullOrWhiteSpace(this.Id))
                 throw new Exception("Trying to create stub for an empty email:  Email.cs");
 
-            return new EmailStub()
+            return new EmailSummary()
             {
                 EmailAddress = this.EmailAddress,
-                Uid = this.Uid,
+                Id = this.Id,
                 Date = this.Envelope.Date,
                 FolderId = this.FolderId,
                 From = this.Envelope.PrimaryFrom,
@@ -76,12 +104,12 @@ namespace SimpleEmail.Core.Model
 
             var other = obj as Email;
 
-            return other.Uid.Equals(this.Uid);
+            return other.Id.Equals(this.Id);
         }
 
         public override int GetHashCode()
         {
-            return this.Uid.GetHashCode();
+            return this.Id.GetHashCode();
         }
     }
 }

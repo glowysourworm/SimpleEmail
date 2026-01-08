@@ -62,6 +62,44 @@ namespace SimpleEmail.Core.Model
             this.Keywords = new List<string>(keywords);
         }
 
+        public EmailEnvelope(EmailSummary summary, DateTime internalDate, IEnumerable<string> keywords) : base()
+        {
+            this.To = FromInternetAddressString(summary.To);
+            this.From = FromInternetAddressString(summary.From);
+
+            this.Cc = new List<string>();
+            this.Bcc = new List<string>();
+            this.ReplyTo = new List<string>();
+            this.InReplyTo = string.Empty;
+
+            this.PrimaryTo = summary.To;
+            this.PrimaryFrom = summary.From;
+            this.NormalizedSubject = summary.Subject;
+            this.Direction = EmailDirection.Incoming;
+            this.Date = summary.Date;
+            this.InternalDate = internalDate;
+            this.Keywords = new List<string>(keywords);
+        }
+
+        public EmailEnvelope(IMimeMessage message)
+        {
+            this.To = FromInternetAddressList(message.To);
+            this.From = FromInternetAddressList(message.From);
+            this.Cc = FromInternetAddressList(message.Cc);
+            this.Bcc = FromInternetAddressList(message.Bcc);
+            this.ReplyTo = FromInternetAddressList(message.ReplyTo);
+
+            this.InReplyTo = message.InReplyTo;
+
+            this.PrimaryTo = message.To.FirstOrDefault()?.Name ?? string.Empty;
+            this.PrimaryFrom = message.From.FirstOrDefault()?.Name ?? string.Empty;
+            this.NormalizedSubject = message.Subject;
+            this.Direction = EmailDirection.Incoming;
+            this.Date = message.Date.UtcDateTime;
+            this.InternalDate = null;
+            this.Keywords = new List<string>();
+        }
+
         public EmailEnvelope(IPropertyReader reader)
         {
             this.To = reader.Read<List<string>>("To");
@@ -135,6 +173,16 @@ namespace SimpleEmail.Core.Model
             result.AddRange(source.Select(x => x.Name));
 
             return result;
+        }
+
+        /// <summary>
+        /// This needs to be moved to a Contact / string parse model to make it generic
+        /// </summary>
+        private List<string> FromInternetAddressString(string addressList)
+        {
+            var addressParts = addressList.Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            return new List<string>(addressParts);
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using MailKit;
-
-using SimpleEmail.Core.Component.Interface;
+﻿using SimpleEmail.Core.Component.Interface;
 using SimpleEmail.Core.Model;
 using SimpleEmail.Core.Model.Configuration;
 
@@ -72,7 +70,7 @@ namespace SimpleEmail.Core.Component
             return _emailAccounts.Values.Select(x => x.Account).Actualize();
         }
 
-        public async Task<Email> GetEmail(string emailAddress, string folderId, UniqueId emailId)
+        public async Task<Email> GetEmail(string emailAddress, string folderId, string emailId)
         {
             if (!_emailAccounts.ContainsKey(emailAddress))
                 throw new Exception("Email address not found in local store");
@@ -87,24 +85,19 @@ namespace SimpleEmail.Core.Component
                 var message = await GetClient(cache.Account.EmailAddress.EmailHost).
                                     GetMessage(configuration, folderId, emailId);
 
-                var stub = await GetClient(cache.Account.EmailAddress.EmailHost).
-                                 GetSummaryAsync(configuration, folderId, emailId);
-
                 if (message == null)
                     throw new Exception("Email request failed for Email " + emailId.ToString());
 
-                var result = new Email(message, stub, emailAddress);
-
                 // Add to cache
-                cache.AddEmail(result);
+                cache.AddEmail(message);
 
-                return result;
+                return message;
             }
             else
                 return cache.GetEmail(emailId);
         }
 
-        public async Task<IEnumerable<EmailStub>> GetEmailStubs(string emailAddress, string emailFolderId)
+        public async Task<IEnumerable<EmailSummary>> GetEmailStubs(string emailAddress, string emailFolderId)
         {
             if (!_emailAccounts.ContainsKey(emailAddress))
                 throw new Exception("Email address not found in local store");
@@ -128,17 +121,15 @@ namespace SimpleEmail.Core.Component
                 if (summaries == null || !summaries.Any())
                     throw new Exception("Email request failed for " + emailAddress);
 
-                var emailStubs = summaries.Select(x => new EmailStub(x, emailFolderId, cache.Account.EmailAddress)).Actualize();
-
                 // Add to cache
-                foreach (var stub in emailStubs)
+                foreach (var summary in summaries)
                 {
                     // DOUBLE CHECK (SERVICE NEEDS TO BE PROOFED)
-                    if (!cache.ContainsEmailStub(stub.Uid))
-                        cache.AddEmailStub(stub);
+                    if (!cache.ContainsEmailStub(summary.Id))
+                        cache.AddEmailStub(summary);
                 }
 
-                return emailStubs;
+                return summaries;
             }
             else
                 return cache.GetEmailStubs(emailFolderId);

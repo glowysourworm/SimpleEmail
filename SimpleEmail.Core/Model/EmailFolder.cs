@@ -64,7 +64,15 @@ namespace SimpleEmail.Core.Model
 
                 return success && matchCount == 1;
             })
-            .Select(x => new EmailFolder(emailAddress, x, allLabels))
+            .Select(x =>
+            {
+                var subFolder = new EmailFolder(emailAddress, x, allLabels);
+
+                // Remove parent folder name from the subfolder
+                subFolder.Name = subFolder.Name.Replace(label.Name + "/", "");
+
+                return subFolder;
+            })
             .ToList();
         }
 

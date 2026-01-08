@@ -35,11 +35,11 @@ namespace SimpleEmail
 
         private async void MailGrid_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            var viewModel = (e.OriginalSource as FrameworkElement).DataContext as EmailStubViewModel;
+            var viewModel = (e.OriginalSource as FrameworkElement).DataContext as EmailSummaryViewModel;
 
             if (viewModel != null)
             {
-                var email = await _emailModelService.GetEmail(viewModel.EmailAddress, viewModel.FolderId, viewModel.Uid);
+                var email = await _emailModelService.GetEmail(viewModel.EmailAddress, viewModel.FolderId, viewModel.Id);
 
                 // View Email
                 var emailView = new EmailView();

@@ -1,6 +1,4 @@
-﻿using MailKit;
-
-using SimpleEmail.Core.Model;
+﻿using SimpleEmail.Core.Model;
 using SimpleEmail.Core.Model.Configuration;
 
 namespace SimpleEmail.Core.Component.Interface
@@ -29,11 +27,11 @@ namespace SimpleEmail.Core.Component.Interface
         /// <summary>
         /// Returns email stubs for the email address, for the provided folder.
         /// </summary>
-        Task<IEnumerable<EmailStub>> GetEmailStubs(string emailAddress, string emailFolderId);
+        Task<IEnumerable<EmailSummary>> GetEmailStubs(string emailAddress, string emailFolderId);
 
         /// <summary>
         /// Returns Email object for the provided email unique id.
         /// </summary>
-        Task<Email> GetEmail(string emailAddress, string folderId, UniqueId emailId);
+        Task<Email> GetEmail(string emailAddress, string folderId, string emailId);
     }
 }

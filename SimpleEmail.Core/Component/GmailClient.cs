@@ -6,8 +6,6 @@ using MailKit;
 using MailKit.Net.Imap;
 using MailKit.Security;
 
-using MimeKit;
-
 using SimpleEmail.Core.Component.Interface;
 using SimpleEmail.Core.Model;
 using SimpleEmail.Core.Model.Configuration;
@@ -107,11 +105,11 @@ namespace SimpleEmail.Core.Component
             }
         }
 
-        public async Task<IMessageSummary> GetSummaryAsync(EmailAccountConfiguration configuration, string folderId, UniqueId emailId)
+        public async Task<EmailSummary> GetSummaryAsync(EmailAccountConfiguration configuration, string folderId, string emailId)
         {
             try
             {
-                return (await GetSummariesAsync(configuration, folderId, new UniqueId[] { emailId })).FirstOrDefault();
+                return (await GetSummariesAsync(configuration, folderId, new string[] { emailId })).FirstOrDefault();
             }
             catch (Exception ex)
             {
@@ -120,7 +118,7 @@ namespace SimpleEmail.Core.Component
                 throw ex;
             }
         }
-        public async Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId, IEnumerable<UniqueId> emailIds)
+        public async Task<IEnumerable<EmailSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId, IEnumerable<string> emailIds)
         {
             try
             {
@@ -133,12 +131,14 @@ namespace SimpleEmail.Core.Component
                     folder.Open(FolderAccess.ReadOnly);
 
                     // Retrieve message summaries
-                    var messages = folder.Fetch(new List<UniqueId>(emailIds), _messageSummaryItems);
+                    var messages = folder.Fetch(new List<UniqueId>(emailIds.Select(x => UniqueId.Parse(x))), _messageSummaryItems);
 
                     // Dispose client (also)
                     client.Disconnect(true);
 
-                    return messages;
+                    var emailAddress = EmailAddress.Parse(configuration.EmailAddress);
+
+                    return messages.Select(x => new EmailSummary(x, folderId, emailAddress)).Actualize();
                 }
             }
             catch (Exception ex)
@@ -148,7 +148,7 @@ namespace SimpleEmail.Core.Component
                 throw ex;
             }
         }
-        public async Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId)
+        public async Task<IEnumerable<EmailSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId)
         {
             try
             {
@@ -166,7 +166,9 @@ namespace SimpleEmail.Core.Component
                     // Dispose client (also)
                     client.Disconnect(true);
 
-                    return messages;
+                    var emailAddress = EmailAddress.Parse(configuration.EmailAddress);
+
+                    return messages.Select(x => new EmailSummary(x, folderId, emailAddress)).Actualize();
                 }
             }
             catch (Exception ex)
@@ -177,7 +179,7 @@ namespace SimpleEmail.Core.Component
             }
         }
 
-        public async Task<IMimeMessage> GetMessage(EmailAccountConfiguration configuration, string folderId, UniqueId emailUid)
+        public async Task<Email> GetMessage(EmailAccountConfiguration configuration, string folderId, string emailId)
         {
             try
             {
@@ -192,12 +194,14 @@ namespace SimpleEmail.Core.Component
                         folder.Open(FolderAccess.ReadOnly);
 
                         // Retrieve message summaries
-                        var message = folder.GetMessage(emailUid);
+                        var uniqueId = UniqueId.Parse(emailId);
+                        var message = folder.GetMessage(uniqueId);
+                        var messageSummary = folder.Fetch(new List<UniqueId>() { uniqueId }, _messageSummaryItems).First();
 
                         // Dispose client (also)
                         client.Disconnect(true);
 
-                        return message;
+                        return new Email(message, folderId, messageSummary.ThreadId, uniqueId, configuration.EmailAddress);
                     }
                 }
                 catch (Exception ex)

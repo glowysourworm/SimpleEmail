@@ -31,7 +31,7 @@ namespace SimpleEmail.ViewModel
         public ObservableCollection<EmailAccountViewModel> EmailAccounts { get; private set; }
 
         // Selected Account / Email list
-        public ObservableCollection<EmailStubViewModel> SelectedFolderEmail { get; private set; }
+        public ObservableCollection<EmailSummaryViewModel> SelectedFolderEmail { get; private set; }
 
         // Commands
         public SimpleCommand NewAccountCommand { get; private set; }
@@ -62,7 +62,7 @@ namespace SimpleEmail.ViewModel
         {
             _emailModelService = emailModelService;
 
-            this.SelectedFolderEmail = new ObservableCollection<EmailStubViewModel>();
+            this.SelectedFolderEmail = new ObservableCollection<EmailSummaryViewModel>();
             this.EmailAccounts = new ObservableCollection<EmailAccountViewModel>();
             this.Configuration = new ConfigurationViewModel(configurationManager.Get());        // Loads view model from model
 
@@ -248,7 +248,7 @@ namespace SimpleEmail.ViewModel
                 if (emailStubs != null)
                 {
                     this.SelectedFolderEmail.Clear();
-                    this.SelectedFolderEmail.AddRange(emailStubs.Select(x => new EmailStubViewModel(x)).Actualize());
+                    this.SelectedFolderEmail.AddRange(emailStubs.Select(x => new EmailSummaryViewModel(x)).Actualize());
                 }
             }
         }

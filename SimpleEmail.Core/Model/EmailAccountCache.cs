@@ -1,7 +1,4 @@
-﻿
-using MailKit;
-
-using SimpleWpf.Extensions.Collection;
+﻿using SimpleWpf.Extensions.Collection;
 
 namespace SimpleEmail.Core.Model
 {
@@ -23,41 +20,41 @@ namespace SimpleEmail.Core.Model
         Dictionary<string, EmailFolder> _folders;
 
         // [MEMORY] Primary email cache
-        Dictionary<UniqueId, Email> _email;
+        Dictionary<string, Email> _email;
 
         // [Less Memory] Primary email stub cache
-        Dictionary<UniqueId, EmailStub> _emailStubs;
+        Dictionary<string, EmailSummary> _emailStubs;
 
         // Primary email cache by folder (shared Email references)
-        Dictionary<string, Dictionary<UniqueId, Email>> _emailByFolder;
+        Dictionary<string, Dictionary<string, Email>> _emailByFolder;
 
         // Primary email stub cache by folder (shared EmailStub references)
-        Dictionary<string, Dictionary<UniqueId, EmailStub>> _emailStubsByFolder;
+        Dictionary<string, Dictionary<string, EmailSummary>> _emailStubsByFolder;
 
         public EmailAccountCache()
-            : this(new EmailAccount(), new List<EmailStub>(), true)
+            : this(new EmailAccount(), new List<EmailSummary>(), true)
         { }
 
         /// <summary>
         /// Creates a cache object with provided EmailAccount (which also fills out folder detail)
         /// </summary>
         public EmailAccountCache(EmailAccount account)
-            : this(account, new List<EmailStub>(), true)
+            : this(account, new List<EmailSummary>(), true)
         { }
 
         /// <summary>
         /// Creates an account cache with folders, and the provided email stubs
         /// </summary>
-        public EmailAccountCache(EmailAccount account, IEnumerable<EmailStub> emailStubs, bool autoCreateStubs)
+        public EmailAccountCache(EmailAccount account, IEnumerable<EmailSummary> emailStubs, bool autoCreateStubs)
         {
             this.Account = account;
             this.AutoCreateStubs = autoCreateStubs;
 
             _folders = new Dictionary<string, EmailFolder>();
-            _email = new Dictionary<UniqueId, Email>();
-            _emailStubs = new Dictionary<UniqueId, EmailStub>();
-            _emailByFolder = new Dictionary<string, Dictionary<UniqueId, Email>>();
-            _emailStubsByFolder = new Dictionary<string, Dictionary<UniqueId, EmailStub>>();
+            _email = new Dictionary<string, Email>();
+            _emailStubs = new Dictionary<string, EmailSummary>();
+            _emailByFolder = new Dictionary<string, Dictionary<string, Email>>();
+            _emailStubsByFolder = new Dictionary<string, Dictionary<string, EmailSummary>>();
 
             foreach (var folder in account.SpecialFolders)
                 AddFolder(folder);
@@ -79,10 +76,10 @@ namespace SimpleEmail.Core.Model
             this.AutoCreateStubs = true;
 
             _folders = new Dictionary<string, EmailFolder>();
-            _email = new Dictionary<UniqueId, Email>();
-            _emailStubs = new Dictionary<UniqueId, EmailStub>();
-            _emailByFolder = new Dictionary<string, Dictionary<UniqueId, Email>>();
-            _emailStubsByFolder = new Dictionary<string, Dictionary<UniqueId, EmailStub>>();
+            _email = new Dictionary<string, Email>();
+            _emailStubs = new Dictionary<string, EmailSummary>();
+            _emailByFolder = new Dictionary<string, Dictionary<string, Email>>();
+            _emailStubsByFolder = new Dictionary<string, Dictionary<string, EmailSummary>>();
 
             foreach (var folder in account.SpecialFolders)
                 AddFolder(folder);
@@ -98,23 +95,23 @@ namespace SimpleEmail.Core.Model
         {
             return _folders[folderId];
         }
-        public Email GetEmail(UniqueId emailId)
+        public Email GetEmail(string emailId)
         {
             return _email[emailId];
         }
-        public Email GetEmail(string folderId, UniqueId emailId)
+        public Email GetEmail(string folderId, string emailId)
         {
             return _emailByFolder[folderId][emailId];
         }
-        public EmailStub GetEmailStub(UniqueId emailId)
+        public EmailSummary GetEmailStub(string emailId)
         {
             return _emailStubs[emailId];
         }
-        public EmailStub GetEmailStub(string folderId, UniqueId emailId)
+        public EmailSummary GetEmailStub(string folderId, string emailId)
         {
             return _emailStubsByFolder[folderId][emailId];
         }
-        public IEnumerable<EmailStub> GetEmailStubs(string folderId)
+        public IEnumerable<EmailSummary> GetEmailStubs(string folderId)
         {
             return _emailStubs.Where(x => x.Value.FolderId == folderId)
                               .Select(x => x.Value)
@@ -145,31 +142,31 @@ namespace SimpleEmail.Core.Model
             foreach (var folder in folders)
             {
                 _folders.Add(folder.Id, folder);
-                _emailByFolder.Add(folder.Id, new Dictionary<UniqueId, Email>());
-                _emailStubsByFolder.Add(folder.Id, new Dictionary<UniqueId, EmailStub>());
+                _emailByFolder.Add(folder.Id, new Dictionary<string, Email>());
+                _emailStubsByFolder.Add(folder.Id, new Dictionary<string, EmailSummary>());
             }
         }
-        public void AddEmailStub(EmailStub stub)
+        public void AddEmailStub(EmailSummary stub)
         {
-            if (_emailStubs.ContainsKey(stub.Uid))
+            if (_emailStubs.ContainsKey(stub.Id))
                 throw new Exception("Email stub already contained in the EmailAccountCache");
 
-            if (_email.ContainsKey(stub.Uid) && !this.AutoCreateStubs)
+            if (_email.ContainsKey(stub.Id) && !this.AutoCreateStubs)
                 throw new Exception("AutoCreateStubs is preventing the use of the EmailAccountCache because the email stub was not present before adding the actual email");
 
-            _emailStubs.Add(stub.Uid, stub);
-            _emailStubsByFolder[stub.FolderId].Add(stub.Uid, stub);
+            _emailStubs.Add(stub.Id, stub);
+            _emailStubsByFolder[stub.FolderId].Add(stub.Id, stub);
         }
         public void AddEmail(Email email)
         {
-            if (_email.ContainsKey(email.Uid))
+            if (_email.ContainsKey(email.Id))
                 throw new Exception("Email already present in EmailAccountCache");
 
             if (!_folders.ContainsKey(email.FolderId))
                 throw new Exception("Email folder not present in EmailAccountCache. Must add folder before adding email to the folder.");
 
             // Check email stubs
-            if (!_emailStubs.ContainsKey(email.Uid))
+            if (!_emailStubs.ContainsKey(email.Id))
             {
                 if (!this.AutoCreateStubs)
                     throw new Exception("AutoCreateStubs is preventing the use of the EmailAccountCache because the email stub was not present before adding the actual email");
@@ -177,19 +174,19 @@ namespace SimpleEmail.Core.Model
                 AddEmailStub(email.CreateStub());
             }
 
-            _email.Add(email.Uid, email);
-            _emailByFolder[email.FolderId].Add(email.Uid, email);
+            _email.Add(email.Id, email);
+            _emailByFolder[email.FolderId].Add(email.Id, email);
         }
 
         public bool ContainsFolder(string folderId)
         {
             return _folders.ContainsKey(folderId);
         }
-        public bool ContainsEmail(UniqueId emailId)
+        public bool ContainsEmail(string emailId)
         {
             return _email.ContainsKey(emailId);
         }
-        public bool ContainsEmailStub(UniqueId emailId)
+        public bool ContainsEmailStub(string emailId)
         {
             return _emailStubs.ContainsKey(emailId);
         }
@@ -212,7 +209,7 @@ namespace SimpleEmail.Core.Model
             _emailByFolder.Remove(folderId);
             _emailStubsByFolder.Remove(folderId);
         }
-        public void RemoveEmailStub(string folderId, UniqueId emailStubId)
+        public void RemoveEmailStub(string folderId, string emailStubId)
         {
             if (!_folders.ContainsKey(folderId))
                 throw new Exception("Email folder not present in EmailAccountCache");
@@ -237,7 +234,7 @@ namespace SimpleEmail.Core.Model
         /// <summary>
         /// Removes email and email stub from the cache
         /// </summary>
-        public void RemoveEmail(string folderId, UniqueId emailId)
+        public void RemoveEmail(string folderId, string emailId)
         {
             if (!_folders.ContainsKey(folderId))
                 throw new Exception("Email folder not present in EmailAccountCache");

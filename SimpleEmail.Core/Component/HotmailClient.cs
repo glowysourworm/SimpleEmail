@@ -1,8 +1,4 @@
-﻿using MailKit;
-
-using MimeKit;
-
-using SimpleEmail.Core.Component.Interface;
+﻿using SimpleEmail.Core.Component.Interface;
 using SimpleEmail.Core.Model;
 using SimpleEmail.Core.Model.Configuration;
 
@@ -18,22 +14,22 @@ namespace SimpleEmail.Core.Component
             throw new NotImplementedException();
         }
 
-        public Task<IMimeMessage> GetMessage(EmailAccountConfiguration configuration, string folderId, UniqueId emailUid)
+        public Task<Email> GetMessage(EmailAccountConfiguration configuration, string folderId, string emailUid)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId, IEnumerable<UniqueId> emailIds)
+        public Task<IEnumerable<EmailSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId, IEnumerable<string> emailIds)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IEnumerable<IMessageSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId)
+        public Task<IEnumerable<EmailSummary>> GetSummariesAsync(EmailAccountConfiguration configuration, string folderId)
         {
             throw new NotImplementedException();
         }
 
-        public Task<IMessageSummary> GetSummaryAsync(EmailAccountConfiguration configuration, string folderId, UniqueId emailIds)
+        public Task<EmailSummary> GetSummaryAsync(EmailAccountConfiguration configuration, string folderId, string emailId)
         {
             throw new NotImplementedException();
         }
